@@ -9,50 +9,53 @@ function warn(message: string) {
 }
 
 /** 最小化 DOM 接口，避免依赖 DOM lib（Node 测试环境无 document） */
-interface StyleElementLike {
-  dataset: Record<string, string>;
-  sheet: { insertRule(rule: string): number } | null;
+interface CSSStyleSheetLike {
+  replaceSync(css: string): void;
 }
 
-function createStyleElement(): StyleElementLike | null {
-  const doc = (globalThis as { document?: unknown }).document as
-    | {
-        createElement(tag: string): StyleElementLike;
-        head: { appendChild(el: StyleElementLike): void };
-      }
-    | undefined;
-  if (!doc) return null;
-  const style = doc.createElement("style");
-  style.dataset.roxcss = "";
-  doc.head.appendChild(style);
-  return style;
+interface DocumentLike {
+  adoptedStyleSheets: CSSStyleSheetLike[];
 }
+
+function getDocument(): DocumentLike | undefined {
+  return (globalThis as { document?: unknown }).document as DocumentLike | undefined;
+}
+
+const CSSStyleSheetCtor = (globalThis as { CSSStyleSheet?: new () => CSSStyleSheetLike })
+  .CSSStyleSheet;
 
 export function createRox(options: RoxOptions): RoxInstance {
   const { matchers, modifiers = {} } = options;
   const injected = new Set<string>();
   const failed = new Set<string>();
-  const style = createStyleElement();
 
-  // 内存记录全部规则：浏览器中同步注入 <style>，无 DOM 时供 getCSS() 读取（测试/SSR）
+  // 内存记录全部规则：浏览器中同步写入 adoptedStyleSheets，无 DOM 时供 getCSS() 读取（测试/SSR）
   const rules: string[] = [];
+
+  /**
+   * 把一批规则写入一个新的构造样式表（constructable stylesheet）。
+   * 一次 replaceSync = 一次解析 + 一次样式失效，避免逐条 insertRule
+   * 在"插入与强制布局交替"场景下触发 O(N²) 的同步样式重算（P0，见 docs/性能分析.md）。
+   */
+  function flush(batch: string[]) {
+    const doc = getDocument();
+    if (!doc || !CSSStyleSheetCtor) return;
+    const sheet = new CSSStyleSheetCtor();
+    sheet.replaceSync(batch.join("\n"));
+    doc.adoptedStyleSheets.push(sheet);
+  }
 
   function injectRule(
     token: string,
     cssDecl: string,
     pseudos: string[],
     envModifier: Modifier | null,
+    batch: string[],
   ): string {
     const selector = `[class~="${token}"]${pseudos.map((p) => `:${p}`).join("")}`;
     const rule = envModifier ? envModifier(token, selector, cssDecl) : `${selector} { ${cssDecl} }`;
     rules.push(rule);
-    if (style?.sheet) {
-      try {
-        style.sheet.insertRule(rule);
-      } catch {
-        // 规则非法时忽略实际注入，内存记录保持一致
-      }
-    }
+    batch.push(rule);
     injected.add(token);
     return token;
   }
@@ -60,8 +63,10 @@ export function createRox(options: RoxOptions): RoxInstance {
   function rox(strings: TemplateStringsArray, ...values: unknown[]): string {
     const raw = String.raw({ raw: strings }, ...values);
     const tokens = raw.split(/\s+/).filter(Boolean);
+    // 本次调用产生的新规则，调用结束时一次性写入
+    const batch: string[] = [];
 
-    return tokens
+    const result = tokens
       .map((token) => {
         if (injected.has(token) || failed.has(token)) return token;
 
@@ -104,7 +109,7 @@ export function createRox(options: RoxOptions): RoxInstance {
               warn(`匹配器返回 null（来自 token "${token}"）`);
               return token;
             }
-            return injectRule(token, cssDecl, pseudos, envModifier);
+            return injectRule(token, cssDecl, pseudos, envModifier, batch);
           }
 
           if (cursor < segments.length) {
@@ -123,7 +128,7 @@ export function createRox(options: RoxOptions): RoxInstance {
                 warn(`匹配器返回 null（来自 token "${token}"）`);
                 return token;
               }
-              return injectRule(token, cssDecl, pseudos, envModifier);
+              return injectRule(token, cssDecl, pseudos, envModifier, batch);
             }
           } else {
             // 段列表耗尽，尝试 ''
@@ -135,7 +140,7 @@ export function createRox(options: RoxOptions): RoxInstance {
                 warn(`匹配器返回 null（来自 token "${token}"）`);
                 return token;
               }
-              return injectRule(token, cssDecl, pseudos, envModifier);
+              return injectRule(token, cssDecl, pseudos, envModifier, batch);
             }
           }
 
@@ -151,6 +156,11 @@ export function createRox(options: RoxOptions): RoxInstance {
         return token;
       })
       .join(" ");
+
+    if (batch.length) {
+      flush(batch);
+    }
+    return result;
   }
 
   return Object.assign(rox, {

@@ -4,12 +4,22 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
-  pack: {
-    dts: {
-      tsgo: true,
+  pack: [
+    {
+      platform: "neutral",
+      dts: true,
+      exports: true,
     },
-    exports: true,
-  },
+    {
+      outputOptions: {
+        entryFileNames: "index.min.js",
+      },
+      platform: "neutral",
+      dts: false,
+      minify: true,
+      exports: true,
+    },
+  ],
   lint: {
     options: {
       typeAware: true,
