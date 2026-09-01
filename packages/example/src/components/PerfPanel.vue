@@ -23,9 +23,8 @@ onMounted(() => {
   observer = new PerformanceObserver((list) => {
     longTasks.push(...list.getEntries());
   });
+  // longtask 不进入 performance buffer，只能通过 observer 实时获取
   observer.observe({ entryTypes: ["longtask"] });
-  // 面板挂载前的历史长任务
-  longTasks.push(...performance.getEntriesByType("longtask"));
 });
 
 function countRules() {
