@@ -38,7 +38,7 @@ function measure() {
   // 1. 规则数：当前 rox 实例已注入的规则条数
   ruleCount.value = countRules();
 
-  // 2. 冷插入：一次性注入 200 条新 token，测 insertRule 总耗时
+  // 2. 冷插入：一次性注入 200 条新 token，测写入总耗时
   const tokens = Array.from({ length: 200 }, (_, i) => `p-${offset + i}px-${offset + i + 1}px`);
   offset += 200;
 
@@ -50,7 +50,7 @@ function measure() {
 
   // 3. 缓存命中：重复调用同一 token 1000 次（只拆串查表，不触碰 CSSOM）
   t0 = performance.now();
-  for (let i = 0; i < 1000; i++) {
+  for (const _ of Array.from({ length: 1000 })) {
     void rox`p-1px-2px`;
   }
   hitMs.value = performance.now() - t0;
@@ -63,41 +63,43 @@ function measure() {
   running.value = false;
 }
 
-function generateReport() {
-  running.value = true;
-  const lines: string[] = [];
-
+function collectHeader(lines: string[]) {
   lines.push("RoxCSS 性能报告");
   lines.push("===============");
   lines.push(`生成时间: ${new Date().toISOString()}`);
   lines.push(`浏览器: ${navigator.userAgent}`);
   lines.push(`视口: ${innerWidth}x${innerHeight}`);
   lines.push(`页面元素数: ${document.querySelectorAll("*").length}`);
+}
 
-  // 1. 重算基线（当前规则数下）
+/** 重算基线：当前规则数下的单次强制重算耗时 */
+function collectBaseline(lines: string[]) {
   lines.push("");
   lines.push("[样式重算基线]");
   const baseRules = countRules();
-  let t0 = performance.now();
+  const t0 = performance.now();
   void document.body.offsetHeight;
   lines.push(`规则数 ${baseRules}: ${(performance.now() - t0).toFixed(3)} ms`);
+}
 
-  // 2. 5 轮冷插入，每轮 200 条新 token，观察插入耗时随规则数增长的趋势
+/** 5 轮冷插入（每轮 200 条）+ 每轮重算采样 + 缓存命中 */
+function collectInsertTrend(lines: string[]) {
   lines.push("");
   lines.push("[规则注入趋势]");
   lines.push("轮次 | 新增 | 插入耗时(ms) | 累计规则");
+
   let base = offset;
-  let total = baseRules;
   const recalcSamples: string[] = [];
-  for (let round = 1; round <= 5; round++) {
+  for (const round of Array.from({ length: 5 }, (_, i) => i + 1)) {
     const tokens = Array.from({ length: 200 }, (_, i) => `p-${base + i}px-${base + i + 1}px`);
     base += 200;
-    t0 = performance.now();
+
+    let t0 = performance.now();
     for (const token of tokens) {
       void rox`${token}`;
     }
     const ms = performance.now() - t0;
-    total = countRules();
+    const total = countRules();
     lines.push(`${round} | 200 | ${ms.toFixed(3)} | ${total}`);
 
     // 每轮后测一次强制重算，观察重算成本随规则数的增长
@@ -106,31 +108,46 @@ function generateReport() {
     recalcSamples.push(`${total} 条: ${(performance.now() - t0).toFixed(3)} ms`);
   }
   offset = base;
+
   lines.push("");
   lines.push("[样式重算随规则数增长]");
   lines.push(...recalcSamples);
 
-  // 3. 缓存命中
-  t0 = performance.now();
-  for (let i = 0; i < 1000; i++) {
+  // 缓存命中
+  let t0 = performance.now();
+  for (const _ of Array.from({ length: 1000 })) {
     void rox`p-1px-2px`;
   }
   lines.push("");
   lines.push(`[缓存命中 ×1000] ${(performance.now() - t0).toFixed(3)} ms`);
+}
 
-  // 4. 长任务
+function collectLongTasks(lines: string[]) {
   lines.push("");
   lines.push("[长任务（>50ms）]");
   lines.push(`共 ${longTasks.length} 条`);
   for (const task of longTasks.slice(-5)) {
     lines.push(`  ${task.duration.toFixed(1)} ms @ 页面加载后 ${Math.round(task.startTime)} ms`);
   }
+}
 
-  // 5. 首屏指标（面板挂载前已发生的 paint 事件）
+/** 首屏指标（面板挂载前已发生的 paint 事件） */
+function collectPaints(lines: string[]) {
   const paints = performance.getEntriesByType("paint");
   for (const p of paints) {
     lines.push(`[paint] ${p.name}: 页面加载后 ${Math.round(p.startTime)} ms`);
   }
+}
+
+function generateReport() {
+  running.value = true;
+
+  const lines: string[] = [];
+  collectHeader(lines);
+  collectBaseline(lines);
+  collectInsertTrend(lines);
+  collectLongTasks(lines);
+  collectPaints(lines);
 
   report.value = lines.join("\n");
   running.value = false;
