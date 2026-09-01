@@ -237,6 +237,9 @@ importers:
 
   packages/example:
     dependencies:
+      roxcss:
+        specifier: workspace:*
+        version: link:../..
       vue:
         specifier: ^3.5.41
         version: 3.5.42(typescript@6.0.3)

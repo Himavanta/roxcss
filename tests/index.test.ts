@@ -114,12 +114,40 @@ test("空白与换行拆分", () => {
   expect(a`\n  p-1   p-2\tp-3  `).toBe("p-1 p-2 p-3");
 });
 
-test("默认匹配器：纯数字补 px，带单位原样", () => {
+test("默认匹配器：值原样使用，不自动补单位", () => {
   expect(rox`p-4`).toBe("p-4");
-  expect(rox.getCSS()).toContain(`[class~="p-4"] { padding:4px }`);
+  expect(rox.getCSS()).toContain(`[class~="p-4"] { padding:4 }`);
 
   expect(rox`p-4px`).toBe("p-4px");
   expect(rox.getCSS()).toContain(`[class~="p-4px"] { padding:4px }`);
+});
+
+test("默认匹配器：多段值拼为简写", () => {
+  expect(rox`p-5px-10px`).toBe("p-5px-10px");
+  expect(rox.getCSS()).toContain(`[class~="p-5px-10px"] { padding:5px 10px }`);
+
+  expect(rox`m-0-auto`).toBe("m-0-auto");
+  expect(rox.getCSS()).toContain(`[class~="m-0-auto"] { margin:0 auto }`);
+});
+
+test("默认匹配器：嵌套结构", () => {
+  expect(rox`inline`).toBe("inline");
+  expect(rox.getCSS()).toContain(`[class~="inline"] { display:inline }`);
+
+  expect(rox`inline-flex`).toBe("inline-flex");
+  expect(rox.getCSS()).toContain(`[class~="inline-flex"] { display:inline-flex }`);
+
+  expect(rox`inline-block`).toBe("inline-block");
+  expect(rox.getCSS()).toContain(`[class~="inline-block"] { display:inline-block }`);
+
+  expect(rox`max-w-100%`).toBe("max-w-100%");
+  expect(rox.getCSS()).toContain(`[class~="max-w-100%"] { max-width:100% }`);
+
+  expect(rox`min-h-100svh`).toBe("min-h-100svh");
+  expect(rox.getCSS()).toContain(`[class~="min-h-100svh"] { min-height:100svh }`);
+
+  expect(rox`flex-1`).toBe("flex-1");
+  expect(rox.getCSS()).toContain(`[class~="flex-1"] { flex:1 1 0 }`);
 });
 
 test("默认匹配器：flex 家族", () => {
