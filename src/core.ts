@@ -16,6 +16,9 @@ function warn(message: string) {
 /** 类型守卫：是否为函数节点 */
 const isFn = (v: unknown): v is MatcherFunction => typeof v === "function";
 
+/** 判断是否为 null 或 undefined */
+const isNull = (v: unknown): v is null | undefined => v == null;
+
 /** 一次 createRox 实例的运行时状态 */
 interface EngineContext {
   matchers: Record<string, MatcherNode>;
@@ -64,7 +67,7 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
   while (node) {
     if (isFn(node)) {
       const cssDecl = node(...segments.slice(cursor));
-      if (cssDecl == null) {
+      if (isNull(cssDecl)) {
         fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
         return null;
       }
@@ -80,7 +83,7 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
     if (isFn(fallback)) {
       const args = key === null ? [] : segments.slice(cursor);
       const cssDecl = fallback(...args);
-      if (cssDecl == null) {
+      if (isNull(cssDecl)) {
         fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
         return null;
       }
@@ -129,7 +132,7 @@ function resolveToken(ctx: EngineContext, token: string, batch: string[]): strin
   if (!parsed) return token;
 
   const cssDecl = lookup(ctx, matchPart.split("-"), token);
-  if (cssDecl == null) return token;
+  if (isNull(cssDecl)) return token;
 
   injectRule(ctx, {
     token,
