@@ -1,4 +1,4 @@
-import { createRox, defaultMatchers } from "roxcss";
+import { createRox, minimal } from "roxcss";
 
 /**
  * example 页面的 rox 实例。
@@ -15,7 +15,7 @@ export const rox = createRox({
       `@media (max-width: 1024px) { ${selector} { ${cssDecl} } }`,
   },
   matchers: {
-    ...defaultMatchers,
+    ...minimal.matchers,
 
     // 定位
     relative: () => "position:relative",

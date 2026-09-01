@@ -26,6 +26,15 @@ export interface RoxOptions {
 }
 
 /**
+ * 预设：一组可直接传给 createRox 的 matchers 与 modifiers 集合。
+ * 可整体使用（createRox(preset)）或 spread 组合。
+ */
+export interface Preset {
+  matchers: Record<string, MatcherNode>;
+  modifiers?: Record<string, Modifier>;
+}
+
+/**
  * createRox 返回的实例：模板字符串标签函数，
  * 挂载 getCSS() 用于读取已注入的全部 CSS（调试与 SSR 收集）。
  */

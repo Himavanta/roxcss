@@ -19,6 +19,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./index.min": "./dist/index.min.js",
+    "./presets/minimal": "./dist/presets/minimal.js",
+    "./presets/unocss": "./dist/presets/unocss.js",
     "./package.json": "./package.json"
   },
   "publishConfig": {

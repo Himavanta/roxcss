@@ -6,6 +6,7 @@ export default defineConfig({
   },
   pack: [
     {
+      entry: ["src/index.ts", "src/presets/*.ts"],
       platform: "neutral",
       dts: true,
       exports: true,
@@ -15,8 +16,8 @@ export default defineConfig({
         entryFileNames: "index.min.js",
       },
       platform: "neutral",
-      dts: false,
       minify: true,
+      dts: false,
       exports: true,
     },
   ],

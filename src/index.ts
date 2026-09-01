@@ -1,9 +1,16 @@
 import { createRox } from "./core.ts";
-import { defaultMatchers } from "../matchers/default.ts";
+import { minimal } from "./presets/minimal.ts";
 
 export { createRox } from "./core.ts";
-export type { MatcherFunction, MatcherNode, Modifier, RoxInstance, RoxOptions } from "./types.ts";
-export { defaultMatchers } from "../matchers/default.ts";
+export type {
+  MatcherFunction,
+  MatcherNode,
+  Modifier,
+  Preset,
+  RoxInstance,
+  RoxOptions,
+} from "./types.ts";
+export { minimal } from "./presets/minimal.ts";
 
-/** 开箱即用的默认实例 */
-export const rox = createRox({ matchers: defaultMatchers });
+/** 开箱即用的默认实例（基于 minimal 预设） */
+export const rox = createRox(minimal);

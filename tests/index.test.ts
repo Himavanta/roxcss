@@ -1,5 +1,5 @@
 import { expect, test } from "vite-plus/test";
-import { createRox, defaultMatchers, rox } from "../src/index.ts";
+import { createRox, minimal, rox } from "../src/index.ts";
 
 const custom = createRox({
   modifiers: {
@@ -158,8 +158,8 @@ test("默认匹配器：flex 家族", () => {
   expect(rox.getCSS()).toContain(`[class~="flex-col"] { display:flex;flex-direction:column }`);
 });
 
-test("defaultMatchers 可被 createRox 复用", () => {
-  const a = createRox({ matchers: defaultMatchers });
+test("minimal 预设可被 createRox 复用", () => {
+  const a = createRox(minimal);
   expect(a`hidden`).toBe("hidden");
   expect(a.getCSS()).toContain(`[class~="hidden"] { display:none }`);
 });
