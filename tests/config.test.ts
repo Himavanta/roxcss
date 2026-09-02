@@ -414,3 +414,49 @@ test("多实例嵌套隔离：子树互不共享", () => {
   (a.matchers.flex as Record<string, unknown>).custom = () => "display:grid";
   expect("custom" in (b.matchers.flex as Record<string, unknown>)).toBe(false);
 });
+
+test("极端：同一 cfg 复用两个实例，注入缓存互不干扰", () => {
+  const cfg = createConfig();
+  const a = createRox(cfg);
+  const b = createRox(cfg);
+  expect(a`p-4px`).toBe("p-4px");
+  // b 未注入过该 token
+  expect(b.getCSS()).not.toContain(`[class~="p-4px"]`);
+  expect(b`p-4px`).toBe("p-4px");
+  expect(b.getCSS()).toContain(`[class~="p-4px"] { padding:4px }`);
+});
+
+test("极端：空对象子树无任何键 → 匹配失败不注入", () => {
+  const a = createRox(createConfig({ matchers: { ghost: {} } }));
+  const before = a.getCSS().length;
+  expect(a`ghost`).toBe("ghost");
+  expect(a`ghost-anything`).toBe("ghost-anything");
+  expect(a.getCSS().length).toBe(before);
+});
+
+test("极端：三层嵌套覆盖子树可用且默认保留", () => {
+  const a = createRox(
+    createConfig({
+      matchers: { layer: { two: { three: () => "display:grid" } } },
+    }),
+  );
+  expect(a`layer-two-three`).toBe("layer-two-three");
+  expect(a.getCSS()).toContain(`[class~="layer-two-three"] { display:grid }`);
+  // 默认 matcher 保留
+  expect(a`hidden`).toBe("hidden");
+});
+
+test("极端：modifiers 自定义覆盖断点，其他断点保留", () => {
+  const a = createRox(
+    createConfig({
+      modifiers: {
+        md: (_c, s, d) => `@media (max-width: 767px) { ${s} { ${d} } }`,
+      },
+    }),
+  );
+  expect(a`md:p-4px`).toBe("md:p-4px");
+  expect(a.getCSS()).toContain(`@media (max-width: 767px) { [class~="md:p-4px"] { padding:4px } }`);
+  // 未覆盖的默认断点保留
+  expect(a`sm:flex`).toBe("sm:flex");
+  expect(a.getCSS()).toContain(`@media (min-width: 640px) { [class~="sm:flex"] { display:flex } }`);
+});

@@ -122,6 +122,48 @@ test("空白与换行拆分", () => {
   expect(a`\n  p-1   p-2\tp-3  `).toBe("p-1 p-2 p-3");
 });
 
+test("极端：空模板与纯空白模板返回空串", () => {
+  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  expect(a``).toBe("");
+  expect(a`   \n\t  `).toBe("");
+  expect(a.getCSS()).toBe("");
+});
+
+test("极端：根无法匹配的 token（中文/Unicode）不注入", () => {
+  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const before = a.getCSS().length;
+  expect(a`你好`).toBe("你好");
+  expect(a.getCSS().length).toBe(before);
+});
+
+test("极端：token 首连字符拆出空根段 → 匹配失败", () => {
+  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const before = a.getCSS().length;
+  expect(a`-p-1`).toBe("-p-1");
+  expect(a.getCSS().length).toBe(before);
+});
+
+test("极端：token 尾连字符落到兜底（flex- 等价 flex）", () => {
+  const a = createRox({
+    matchers: {
+      flex: { "": () => "display:flex", col: () => "display:flex;flex-direction:column" },
+    },
+  });
+  expect(a`flex-`).toBe("flex-");
+  expect(a.getCSS()).toContain(`[class~="flex-"] { display:flex }`);
+});
+
+test("极端：环境修饰符 + 多伪类（含连字符）完整链", () => {
+  const a = createRox({
+    modifiers: { md: (_c, s, d) => `@media (min-width: 768px) { ${s} { ${d} } }` },
+    matchers: { bg: ([v]: string[]) => `background:${v}` },
+  });
+  expect(a`md:hover:focus-within:bg-blue`).toBe("md:hover:focus-within:bg-blue");
+  expect(a.getCSS()).toContain(
+    `@media (min-width: 768px) { [class~="md:hover:focus-within:bg-blue"]:hover:focus-within { background:blue } }`,
+  );
+});
+
 test("默认匹配器：值原样使用，不自动补单位", () => {
   expect(rox`p-4`).toBe("p-4");
   expect(rox.getCSS()).toContain(`[class~="p-4"] { padding:4 }`);
