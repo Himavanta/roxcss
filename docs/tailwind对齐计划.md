@@ -1,6 +1,6 @@
 # RoxCSS × Tailwind v4 对齐计划
 
-> 状态：P1/P2 已实施完成（2026-09-02）。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
+> 状态：P1/P2 已实施完成（2026-09-02）；对齐主体收敛，剩余差距候选见"七"（P4，逐项待确认）。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
 > 决策点逐个讨论确认，确认后更新状态并落代码；不一口气做完。
 >
 > 数据源：Tailwind CSS v4 官方源码 `tailwindlabs/tailwindcss`（`packages/tailwindcss/src/utilities.ts`，main 分支，2026-09-02 拉取），对照 `src/config.ts` 现有 matcher 树与 `packages/example` 实际用法。
@@ -54,6 +54,8 @@
 
 ### 3.1 已与 Tailwind 一致（A，无需动作）
 
+> P1/P2 后默认树已有 70 个顶层 matcher 根（contents/static/visible/invisible/whitespace 家族/truncate/underline 族/text-wrap 家族/align/pointer-events/select/appearance/resize/scroll/sr-only/isolate/list 位置/animate/font 根/grow/flex-nowrap 等均已并入 A/B 面）。下表为核心面；完整清单以 `src/config.ts` 为准。
+
 | 类目           | 类名                                                                                                                                                                                    |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | display        | `block` `hidden` `inline` `inline-block` `inline-flex`                                                                                                                                  |
@@ -68,10 +70,10 @@
 | 交互           | `cursor-*`（值写全）                                                                                                                                                                    |
 | 变体           | `sm:` `md:` `lg:` `xl:`（min-width 与 Tailwind 断点值一致）；伪类自由前缀 `hover:` `focus:` `focus-visible:` `active:` `disabled:` 等与 Tailwind 同名全覆盖（无白名单，是超集而非子集） |
 
-### 3.2 缺失可补（新增，分批见"六"）
+### 3.2 缺失可补（已全部落地，剩余候选见"七"）
 
-- **P1 纯新增零冲突**：`contents` `static` `visible` `invisible` `overflow-visible` `overflow-clip` `whitespace-*` `truncate` `underline` `overline` `line-through` `text-nowrap/ellipsis/clip/balance/pretty` `align-*`（vertical-align）`pointer-events-*` `select-*` `appearance-none` `resize-*` `scroll-smooth` `scroll-auto` `sr-only` `not-sr-only` `isolate` `list-inside/outside` `animate-*`（值透传）
-- **P2 依赖决策点**：见 D01–D05/D07/D08（含 color 根新增、text/size 迁移、rounded、flex 重构、font 根、2xl、overflow 同构）
+- ✅ **P1 纯新增零冲突**（19 组）：`contents` `static` `visible` `invisible` `overflow-visible` `overflow-clip` `whitespace-*` `truncate` `underline` `overline` `line-through` `text-nowrap/ellipsis/clip/balance/pretty` `align-*`（vertical-align）`pointer-events-*` `select-*` `appearance-none` `resize-*` `scroll-smooth` `scroll-auto` `sr-only` `not-sr-only` `isolate` `list-inside/outside` `animate-*`（值透传）
+- ✅ **P2 决策落地批**：D01–D05/D07/D08（color 根新增、text/size 迁移、rounded、flex 重构、font 根、2xl、overflow 同构）
 - **P3 值形态与键表**（依赖值解析增强，另行启动）：色板（`color-red-500` 等，落 color 扩展根；bg/border 键表另议）、字号表（落 `text` 根：`text-sm/base/lg`）、间距 scale、`opacity` 数字换算、语义阴影/圆角键表等
 
 ### 3.3 不可实现（C，明确不做，防重复讨论）
@@ -178,6 +180,7 @@ Tailwind 默认断点 `sm 640 md 768 lg 1024 xl 1280 2xl 1536`；roxcss 缺 `2xl
 | **P1** | 纯新增零冲突批（3.2 的 P1 清单，D09 已过目）+ 测试                                                                                                    | ✅ 完成（2026-09-02） |
 | **P2** | 决策落地的迁移批：D01–D05/D07/D08（**color 根新增**、text 字号化、size 宽高化、rounded、flex 重构、font 根、2xl、overflow 同构）+ example 同步 + 测试 | ✅ 完成（2026-09-02） |
 | **P3** | 值解析增强（值形态与键表，另行设计启动，见 3.2 P3 与 D10）                                                                                            | 独立规划              |
+| **P4** | 剩余差距候选（见"七"，逐项确认后分批执行）                                                                                                            | 待讨论                |
 
 每批验收：`vp check` + `vp test` 全绿；example 页面视觉回归；涉及改名批检查 example 全部调用点。
 
@@ -189,8 +192,46 @@ Tailwind 默认断点 `sm 640 md 768 lg 1024 xl 1280 2xl 1536`；roxcss 缺 `2xl
 - [x] D05–D08 次轮讨论（font 根 / 等效异形维持 / 补 2xl / overflow 同构）
 - [x] D09：P1 新增清单过目（整体接受）
 - [x] D10：P3 独立规划
-- [ ] P1 开工：19 项纯新增 matcher + 测试
-- [ ] P2 开工：D01–D05/D07/D08 落地（color 根新增、text 字号化、size 宽高化、radius→rounded、flex 重构、font 根、2xl、overflow 同构）+ example 同步 + 测试
 - [x] 补充决策（2026-09-02）：D01/D02 修订为 A2 案（color 独立扩展根、text=字号、size=宽高），确认不加值校验（保持简单轻量）
 - [x] P1 完成（2026-09-02）：19 项新增 matcher + 10 组测试，39 测试全绿，提交 2da2454
 - [x] P2 完成（2026-09-02）：config 迁移 + example 同步 + P2 测试组，45 测试全绿
+- [x] 对齐主体收官（2026-09-02）：递归覆盖合并 / null 删除 / 容器严格语义 / Modifier 双参 / 警告英文 / 63 测试全绿
+- [ ] P4：七节候选逐项确认 → 分批实施
+
+---
+
+## 七、剩余差距与后续候选（P4，逐项待确认）
+
+> P1/P2 落地后与 Tailwind 的剩余差距分三类：频率中高的零成本键、需子树改造的族、依赖值解析（P3）的语义键表。输出值以 utilities.ts（main 分支）核实为准。
+
+### 7.1 建议优先（高频、形态明确）
+
+| 候选                         | Tailwind（输出参考）                                                             | roxcss 做法                                                            | 形态成本 |
+| ---------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------- |
+| `gap-x` / `gap-y`            | `gap-x-4` → `column-gap`；`gap-y-4` → `row-gap`                                  | gap 由函数改子树 `{ "": 值, x, y }`（现有 `gap-8px` 经 `""` 兜底兼容） | 子树改造 |
+| `self-*`（align-self）       | `self-start` → `align-self:flex-start`（auto/start/end/center/stretch/baseline） | 新根 `self`，键表映射（start → flex-start 等）                         | 纯新增   |
+| `justify-self-*`             | `justify-self-auto/start/...`                                                    | `justify` 子树加 `self` 子树（justify 现有键仍表 justify-content）     | 纯新增   |
+| `content-*`（align-content） | `content-between` → `align-content:space-between`                                | 新根 `content`（键值映射同 justify）                                   | 纯新增   |
+| `text-justify`               | `text-justify` → `text-align:justify`                                            | text 子树加键                                                          | 纯新增   |
+| `leading` / `tracking`       | `leading-*` line-height、`tracking-*` letter-spacing（roxcss 值写全）            | 新根值透传：`leading-1.5` → `line-height:1.5`                          | 值透传   |
+| `duration` / `delay`         | `duration-300`（ms scale）；roxcss 值写全                                        | 新根值透传：`duration-300ms` → `transition-duration:300ms`             | 值透传   |
+
+### 7.2 中低频 / 低成本补全
+
+| 候选                    | Tailwind                                                                             | roxcss 做法                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `break-*` / `wrap-*`    | `break-all` → `word-break:break-all`；`wrap-break-word` → `overflow-wrap:break-word` | 新根 `break`（根级，与 whitespace 子树内键不冲突）、`wrap`  |
+| list 类型               | `list-disc`/`list-decimal` → `list-style-type:*`                                     | list 子树加键                                               |
+| `box-content`           | `box-content` → `box-sizing:content-box`                                             | box 子树加键                                                |
+| `grid-rows`             | `grid-rows-2` → `repeat(2,minmax(0,1fr))`                                            | grid 子树加键                                               |
+| `col-span` / `row-span` | `col-span-2` → `grid-column:span 2 / span 2`                                         | 新根 `col`/`row`（flex 的 col/row 在 flex 子树，不受影响）  |
+| `ease`                  | `ease-in-out` 等                                                                     | 子树 `ease` { `""`, `in` { `""`, `out` } }（in-out 拆两段） |
+| `aspect`                | `aspect-video` 等语义键                                                              | 值透传 `aspect-16/9`（值含 `/`，需确认合法字符集）或键表    |
+| `object-*`              | `object-contain/cover/...` → `object-fit`                                            | 新根 `object` 键表                                          |
+| `isolation-auto`        | `isolation:auto`                                                                     | 与 `isolate` 成对补键                                       |
+
+### 7.3 明确不做 / 待 P3
+
+- **值解析族**（P3 统一启动）：色板 `color-red-500`、字号表 `text-sm`、间距 scale `p-4`、`opacity-50` 数字换算、语义阴影/圆角键表
+- **低频/需重构**：`ring`（box-shadow 组合）、`columns`、`line-clamp`（多声明 + -webkit-box）、`scroll-m/p`、`snap-*`、`overscroll`、`mask`、`accent/caret`、`hyphens`、`tab`、`outline-offset`（与 outline 简写根冲突，需重构）、`box-decoration-*`、独立 transform 属性拆分（rotate/scale/translate）
+- **C 类不可实现**：见 3.3
