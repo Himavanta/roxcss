@@ -20,8 +20,8 @@ test("默认配置：颜色与文本", () => {
   expect(rox`bg-#ef4444`).toBe("bg-#ef4444");
   expect(rox.getCSS()).toContain(`[class~="bg-#ef4444"] { background:#ef4444 }`);
 
-  expect(rox`text-white`).toBe("text-white");
-  expect(rox.getCSS()).toContain(`[class~="text-white"] { color:white }`);
+  expect(rox`color-white`).toBe("color-white");
+  expect(rox.getCSS()).toContain(`[class~="color-white"] { color:white }`);
 
   expect(rox`text-center`).toBe("text-center");
   expect(rox.getCSS()).toContain(`[class~="text-center"] { text-align:center }`);
@@ -38,9 +38,6 @@ test("默认配置：边框方向子项", () => {
 test("默认配置：flex / grid / 位置", () => {
   expect(rox`flex-col`).toBe("flex-col");
   expect(rox.getCSS()).toContain(`[class~="flex-col"] { display:flex;flex-direction:column }`);
-
-  expect(rox`flex-half`).toBe("flex-half");
-  expect(rox.getCSS()).toContain(`[class~="flex-half"] { flex:1 1 calc(50% - 8px) }`);
 
   expect(rox`grid-cols-3`).toBe("grid-cols-3");
   expect(rox.getCSS()).toContain(
@@ -170,9 +167,9 @@ test("P1 text-wrap / text-overflow 家族（text 子树）", () => {
   expect(rox`text-clip`).toBe("text-clip");
   expect(rox.getCSS()).toContain(`[class~="text-clip"] { text-overflow:clip }`);
 
-  // color 兜底语义不受影响
-  expect(rox`text-white`).toBe("text-white");
-  expect(rox.getCSS()).toContain(`[class~="text-white"] { color:white }`);
+  // 颜色语义在独立的 color 根（P2 迁移后）
+  expect(rox`color-white`).toBe("color-white");
+  expect(rox.getCSS()).toContain(`[class~="color-white"] { color:white }`);
 });
 
 test("P1 vertical-align", () => {
@@ -244,4 +241,71 @@ test("P1 isolate / list 位置 / animate", () => {
 
   expect(rox`animate-bounce`).toBe("animate-bounce");
   expect(rox.getCSS()).toContain(`[class~="animate-bounce"] { animation:bounce }`);
+});
+
+// ---- P2：Tailwind 对齐迁移批（D01–D05/D07/D08）----
+
+test("P2 text=字号 / size=宽高 / color 独立根（D01/D02 A2 案）", () => {
+  expect(rox`text-16px`).toBe("text-16px");
+  expect(rox.getCSS()).toContain(`[class~="text-16px"] { font-size:16px }`);
+
+  expect(rox`size-16px`).toBe("size-16px");
+  expect(rox.getCSS()).toContain(`[class~="size-16px"] { width:16px;height:16px }`);
+
+  expect(rox`color-accent`).toBe("color-accent");
+  expect(rox.getCSS()).toContain(`[class~="color-accent"] { color:accent }`);
+});
+
+test("P2 radius 更名 rounded（D03）", () => {
+  expect(rox`rounded-5px`).toBe("rounded-5px");
+  expect(rox.getCSS()).toContain(`[class~="rounded-5px"] { border-radius:5px }`);
+});
+
+test("P2 flex 对齐 Tailwind（D04）", () => {
+  expect(rox`flex-1`).toBe("flex-1");
+  expect(rox.getCSS()).toContain(`[class~="flex-1"] { flex:1 }`);
+
+  expect(rox`flex-nowrap`).toBe("flex-nowrap");
+  expect(rox.getCSS()).toContain(`[class~="flex-nowrap"] { display:flex;flex-wrap:nowrap }`);
+
+  expect(rox`grow`).toBe("grow");
+  expect(rox.getCSS()).toContain(`[class~="grow"] { flex-grow:1 }`);
+
+  // 移除的发明键失去专属语义，落入 flex 的 display 兜底
+  for (const token of ["flex-center", "flex-half", "flex-space-between", "flex-grow"]) {
+    expect(rox`${token}`).toBe(token);
+    expect(rox.getCSS()).toContain(`[class~="${token}"] { display:flex }`);
+  }
+});
+
+test("P2 font 根取代裸 bold/mono（D05）", () => {
+  expect(rox`font-bold`).toBe("font-bold");
+  expect(rox.getCSS()).toContain(`[class~="font-bold"] { font-weight:700 }`);
+
+  expect(rox`font-medium`).toBe("font-medium");
+  expect(rox.getCSS()).toContain(`[class~="font-medium"] { font-weight:500 }`);
+
+  expect(rox`font-mono`).toBe("font-mono");
+  expect(rox.getCSS()).toContain(
+    `[class~="font-mono"] { font-family:ui-monospace,SFMono-Regular,Menlo,monospace }`,
+  );
+
+  // italic 裸键与 Tailwind 一致，保留
+  expect(rox`italic`).toBe("italic");
+  expect(rox.getCSS()).toContain(`[class~="italic"] { font-style:italic }`);
+});
+
+test("P2 默认断点补 2xl（D07）", () => {
+  expect(rox`2xl:p-4px`).toBe("2xl:p-4px");
+  expect(rox.getCSS()).toContain(
+    `@media (min-width: 1536px) { [class~="2xl:p-4px"] { padding:4px } }`,
+  );
+});
+
+test("P2 overflow 轴同构（D08）", () => {
+  expect(rox`overflow-x-auto`).toBe("overflow-x-auto");
+  expect(rox.getCSS()).toContain(`[class~="overflow-x-auto"] { overflow-x:auto }`);
+
+  expect(rox`overflow-y-hidden`).toBe("overflow-y-hidden");
+  expect(rox.getCSS()).toContain(`[class~="overflow-y-hidden"] { overflow-y:hidden }`);
 });

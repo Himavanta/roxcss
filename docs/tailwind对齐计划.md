@@ -1,6 +1,6 @@
 # RoxCSS × Tailwind v4 对齐计划
 
-> 状态：规划中。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
+> 状态：P1/P2 已实施完成（2026-09-02）。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
 > 决策点逐个讨论确认，确认后更新状态并落代码；不一口气做完。
 >
 > 数据源：Tailwind CSS v4 官方源码 `tailwindlabs/tailwindcss`（`packages/tailwindcss/src/utilities.ts`，main 分支，2026-09-02 拉取），对照 `src/config.ts` 现有 matcher 树与 `packages/example` 实际用法。
@@ -25,7 +25,7 @@
 
 ## 二、现状快照
 
-### 2.1 当前 matcher 树（`src/config.ts`）
+### 2.1 P0 时的 matcher 树快照（P1/P2 后已有较大变化，最新以 `src/config.ts` 为准）
 
 - **单键**：`block` `hidden` `relative` `absolute` `fixed` `sticky` `z` `top` `right` `bottom` `left` `w` `h` `bg` `outline` `radius` `shadow` `opacity` `transition` `transform` `cursor` `mono` `bold` `italic` `uppercase` `lowercase` `capitalize` `size` `gap`（后接值）
 - **子树**：
@@ -173,8 +173,8 @@ Tailwind 默认断点 `sm 640 md 768 lg 1024 xl 1280 2xl 1536`；roxcss 缺 `2xl
 | 批次   | 内容                                                                                                                                                  | 前置                  |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | **P0** | 决策点全部确认（D01–D10）                                                                                                                             | ✅ 完成（2026-09-02） |
-| **P1** | 纯新增零冲突批（3.2 的 P1 清单，D09 已过目）+ 测试                                                                                                    | ✅ D09                |
-| **P2** | 决策落地的迁移批：D01–D05/D07/D08（**color 根新增**、text 字号化、size 宽高化、rounded、flex 重构、font 根、2xl、overflow 同构）+ example 同步 + 测试 | ✅ D01–D10            |
+| **P1** | 纯新增零冲突批（3.2 的 P1 清单，D09 已过目）+ 测试                                                                                                    | ✅ 完成（2026-09-02） |
+| **P2** | 决策落地的迁移批：D01–D05/D07/D08（**color 根新增**、text 字号化、size 宽高化、rounded、flex 重构、font 根、2xl、overflow 同构）+ example 同步 + 测试 | ✅ 完成（2026-09-02） |
 | **P3** | 值解析增强（值形态与键表，另行设计启动，见 3.2 P3 与 D10）                                                                                            | 独立规划              |
 
 每批验收：`vp check` + `vp test` 全绿；example 页面视觉回归；涉及改名批检查 example 全部调用点。
@@ -190,3 +190,5 @@ Tailwind 默认断点 `sm 640 md 768 lg 1024 xl 1280 2xl 1536`；roxcss 缺 `2xl
 - [ ] P1 开工：19 项纯新增 matcher + 测试
 - [ ] P2 开工：D01–D05/D07/D08 落地（color 根新增、text 字号化、size 宽高化、radius→rounded、flex 重构、font 根、2xl、overflow 同构）+ example 同步 + 测试
 - [x] 补充决策（2026-09-02）：D01/D02 修订为 A2 案（color 独立扩展根、text=字号、size=宽高），确认不加值校验（保持简单轻量）
+- [x] P1 完成（2026-09-02）：19 项新增 matcher + 10 组测试，39 测试全绿，提交 2da2454
+- [x] P2 完成（2026-09-02）：config 迁移 + example 同步 + P2 测试组，45 测试全绿

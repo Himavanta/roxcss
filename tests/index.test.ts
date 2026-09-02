@@ -147,7 +147,7 @@ test("默认匹配器：嵌套结构", () => {
   expect(rox.getCSS()).toContain(`[class~="min-h-100svh"] { min-height:100svh }`);
 
   expect(rox`flex-1`).toBe("flex-1");
-  expect(rox.getCSS()).toContain(`[class~="flex-1"] { flex:1 1 0 }`);
+  expect(rox.getCSS()).toContain(`[class~="flex-1"] { flex:1 }`);
 });
 
 test("默认匹配器：flex 家族", () => {

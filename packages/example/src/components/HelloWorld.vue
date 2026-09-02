@@ -41,7 +41,7 @@ const count = ref(0);
     <button
       type="button"
       :class="
-        rox`inline-flex mono size-16px pt-5px pb-5px pl-10px pr-10px radius-5px text-accent bg-accent-bg border-2px-solid-transparent transition-border mb-24px hover:border-color-accent-border focus-visible:outline`
+        rox`inline-flex font-mono text-16px pt-5px pb-5px pl-10px pr-10px rounded-5px color-accent bg-accent-bg border-2px-solid-transparent transition-border mb-24px hover:border-color-accent-border focus-visible:outline`
       "
       @click="count++"
     >
@@ -69,7 +69,7 @@ const count = ref(0);
             href="https://vite.dev/"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <img :class="rox`h-18px`" :src="viteLogo" alt="" />
@@ -81,7 +81,7 @@ const count = ref(0);
             href="https://vuejs.org/"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <img :class="rox`w-18px h-18px`" :src="vueLogo" alt="" />
@@ -104,7 +104,7 @@ const count = ref(0);
             href="https://github.com/vitejs/vite"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <svg :class="rox`w-18px h-18px`" role="presentation" aria-hidden="true">
@@ -118,7 +118,7 @@ const count = ref(0);
             href="https://chat.vite.dev/"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <svg :class="rox`w-18px h-18px`" role="presentation" aria-hidden="true">
@@ -132,7 +132,7 @@ const count = ref(0);
             href="https://x.com/vite_js"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <svg :class="rox`w-18px h-18px`" role="presentation" aria-hidden="true">
@@ -146,7 +146,7 @@ const count = ref(0);
             href="https://bsky.app/profile/vite.dev"
             target="_blank"
             :class="
-              rox`flex items-center gap-8px px-12px py-6px radius-6px size-16px text-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
+              rox`flex items-center gap-8px px-12px py-6px rounded-6px text-16px color-text-h bg-social-bg no-underline transition-shadow hover:shadow lg:w-100% lg:justify-center lg:box-border`
             "
           >
             <svg :class="rox`w-18px h-18px`" role="presentation" aria-hidden="true">

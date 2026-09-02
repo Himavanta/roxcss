@@ -3,8 +3,8 @@ import type { MatcherNode, Modifier, Preset } from "./types.ts";
 /** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
 const space = (vs: string[]) => vs.join(" ");
 
-/** 默认断点：sm/md/lg/xl（min-width 媒体查询） */
-export const defaultBreakpoints = { sm: 640, md: 768, lg: 1024, xl: 1280 } as const;
+/** 默认断点：sm/md/lg/xl/2xl（min-width 媒体查询） */
+export const defaultBreakpoints = { sm: 640, md: 768, lg: 1024, xl: 1280, "2xl": 1536 } as const;
 
 /**
  * 生成断点 modifiers。传入的断点表完全决定输出（不隐式合并默认）；
@@ -49,16 +49,10 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     col: () => "display:flex;flex-direction:column",
     row: () => "display:flex;flex-direction:row",
     wrap: () => "display:flex;flex-wrap:wrap",
-    center: () => "display:flex;align-items:center;justify-content:center",
-    "1": () => "flex:1 1 0",
-    half: () => "flex:1 1 calc(50% - 8px)",
-    grow: () => "flex-grow:1",
-    space: {
-      "": ([v]) => `justify-content:space-${v}`,
-      between: () => "justify-content:space-between",
-      around: () => "justify-content:space-around",
-    },
+    nowrap: () => "display:flex;flex-wrap:nowrap",
+    "1": () => "flex:1",
   },
+  grow: () => "flex-grow:1",
   items: {
     center: () => "align-items:center",
     start: () => "align-items:flex-start",
@@ -99,6 +93,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   gap: ([v]) => `gap:${v}`,
 
   // 尺寸
+  size: ([v]) => `width:${v};height:${v}`,
   w: ([v]) => `width:${v}`,
   h: ([v]) => `height:${v}`,
   max: {
@@ -112,8 +107,9 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
   // 颜色与文本
   bg: ([v]) => `background:${v}`,
+  color: ([v]) => `color:${v}`,
   text: {
-    "": ([v]) => `color:${v}`,
+    "": ([v]) => `font-size:${v}`,
     center: () => "text-align:center",
     left: () => "text-align:left",
     right: () => "text-align:right",
@@ -137,7 +133,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     color: (vs) => `border-color:${space(vs)}`,
   },
   outline: ([v]) => `outline:${v}`,
-  radius: ([v]) => `border-radius:${v}`,
+  rounded: ([v]) => `border-radius:${v}`,
 
   // 位置与层级
   static: () => "position:static",
@@ -167,8 +163,8 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     auto: () => "overflow:auto",
     visible: () => "overflow:visible",
     clip: () => "overflow:clip",
-    x: () => "overflow-x:auto",
-    y: () => "overflow-y:auto",
+    x: ([v]) => `overflow-x:${v}`,
+    y: ([v]) => `overflow-y:${v}`,
   },
   transition: ([v]) => `transition:${v}`,
   transform: ([v]) => `transform:${v}`,
@@ -225,13 +221,25 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   underline: () => "text-decoration-line:underline",
   overline: () => "text-decoration-line:overline",
   line: { through: () => "text-decoration-line:line-through" },
-  bold: () => "font-weight:700",
+  // 字重与字体族（font 根）
+  font: {
+    thin: () => "font-weight:100",
+    extralight: () => "font-weight:200",
+    light: () => "font-weight:300",
+    normal: () => "font-weight:400",
+    medium: () => "font-weight:500",
+    semibold: () => "font-weight:600",
+    bold: () => "font-weight:700",
+    extrabold: () => "font-weight:800",
+    black: () => "font-weight:900",
+    sans: () => "font-family:ui-sans-serif,system-ui,sans-serif",
+    serif: () => "font-family:ui-serif,Georgia,serif",
+    mono: () => "font-family:ui-monospace,SFMono-Regular,Menlo,monospace",
+  },
   italic: () => "font-style:italic",
   uppercase: () => "text-transform:uppercase",
   lowercase: () => "text-transform:lowercase",
   capitalize: () => "text-transform:capitalize",
-  mono: () => "font-family:monospace",
-  size: ([v]) => `font-size:${v}`,
   no: {
     underline: () => "text-decoration:none",
   },

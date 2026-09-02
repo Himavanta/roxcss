@@ -1,4 +1,4 @@
-import { createRox, createConfig } from "roxcss";
+import { createRox, createConfig, type MatcherNode } from "roxcss";
 
 /**
  * example 页面的 rox 实例。
@@ -8,6 +8,8 @@ import { createRox, createConfig } from "roxcss";
  *   暗色模式（prefers-color-scheme 切换变量值）依然生效
  * - 值一律原样使用，单位由调用者写全（如 `w-170px`）
  */
+const base = createConfig();
+
 export const rox = createRox(
   createConfig({
     modifiers: {
@@ -16,14 +18,14 @@ export const rox = createRox(
         `@media (max-width: 1024px) { ${selector} { ${cssDecl} } }`,
     },
     matchers: {
-      // 页面 CSS 变量体系：剩余段拼为变量名，如 bg-accent-bg → var(--accent-bg)
-      bg: (vs) => `background:var(--${vs.join("-")})`,
-      text: {
-        "": (vs) => `color:var(--${vs.join("-")})`,
-        center: () => "text-align:center",
-        left: () => "text-align:left",
-        right: () => "text-align:right",
+      // 基于默认 flex 树扩展：lg 两栏布局各占一半（页面私有）
+      flex: {
+        ...(base.matchers.flex as Record<string, MatcherNode>),
+        half: () => "flex:1 1 calc(50% - 8px)",
       },
+      // 页面 CSS 变量体系：剩余段拼为变量名，如 color-accent-bg → var(--accent-bg)
+      color: (vs) => `color:var(--${vs.join("-")})`,
+      bg: (vs) => `background:var(--${vs.join("-")})`,
       border: {
         t: () => "border-top:1px solid var(--border)",
         b: () => "border-bottom:1px solid var(--border)",
@@ -37,7 +39,11 @@ export const rox = createRox(
         border: () => "transition:border-color 0.3s",
         shadow: () => "transition:box-shadow 0.3s",
       },
-      mono: () => "font-family:var(--mono)",
+      // 页面 monospace 字体变量（覆盖默认 font 树的 mono 键）
+      font: {
+        ...(base.matchers.font as Record<string, MatcherNode>),
+        mono: () => "font-family:var(--mono)",
+      },
 
       // hero 的 3D 变换（复杂值硬编码为具名 matcher）
       transforms: {
