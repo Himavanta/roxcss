@@ -58,6 +58,14 @@ test("伪类链按顺序拼接", () => {
   expect(custom.getCSS()).toContain(`[class~="hover:focus:p-4"]:hover:focus { padding:4px }`);
 });
 
+test("伪类名可含连字符（focus-within）", () => {
+  // 前缀段不做 - 分割，带 - 的伪类原样拼到选择器
+  expect(custom`hover:focus-within:bg-blue`).toBe("hover:focus-within:bg-blue");
+  expect(custom.getCSS()).toContain(
+    `[class~="hover:focus-within:bg-blue"]:hover:focus-within { background:blue }`,
+  );
+});
+
 test("环境修饰符包裹整个规则", () => {
   expect(custom`md:flex-space-between`).toBe("md:flex-space-between");
   expect(custom.getCSS()).toContain(

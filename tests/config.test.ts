@@ -368,3 +368,49 @@ test("严格容器语义：非普通对象（Object.create(null)）不作为子�
   expect(a`custom-foo`).toBe("custom-foo");
   expect(a.getCSS().length).toBe(before);
 });
+
+test("严格容器语义：类实例/数组不作为子树", () => {
+  class Sub {
+    foo = () => "display:grid";
+  }
+  const a = createRox(
+    createConfig({
+      matchers: {
+        inst: new Sub() as never,
+        arr: [] as never,
+      },
+    }),
+  );
+  const before = a.getCSS().length;
+  expect(a`inst-foo`).toBe("inst-foo");
+  expect(a`arr-0`).toBe("arr-0");
+  expect(a.getCSS().length).toBe(before);
+});
+
+test("嵌套 null 删除：深层键删除后落入兜底，兄弟键保留", () => {
+  const a = createRox(createConfig({ matchers: { text: { center: null } } }));
+  // center 被删除 → text-center 落入 text 的 "" 兜底，不再产生 text-align
+  expect(a`text-center`).toBe("text-center");
+  expect(a.getCSS()).toContain(`[class~="text-center"] { font-size:center }`);
+  expect(a.getCSS()).not.toContain(`text-align:center`);
+  // 兄弟键不受影响
+  expect(a`text-left`).toBe("text-left");
+  expect(a.getCSS()).toContain(`[class~="text-left"] { text-align:left }`);
+});
+
+test("modifiers null 删除：前缀按伪类处理，不再生成媒体查询", () => {
+  const a = createRox(createConfig({ modifiers: { md: null } }));
+  expect(a`md:p-4px`).toBe("md:p-4px");
+  // md 不在 modifiers 表 → 按伪类拼到选择器，无 @media
+  expect(a.getCSS()).toContain(`[class~="md:p-4px"]:md { padding:4px }`);
+  expect(a.getCSS()).not.toContain("@media");
+});
+
+test("多实例嵌套隔离：子树互不共享", () => {
+  const a = createConfig();
+  const b = createConfig();
+  expect(a.matchers.flex).not.toBe(b.matchers.flex);
+  // 修改 a 的嵌套键不影响 b
+  (a.matchers.flex as Record<string, unknown>).custom = () => "display:grid";
+  expect("custom" in (b.matchers.flex as Record<string, unknown>)).toBe(false);
+});
