@@ -22,9 +22,9 @@ RoxCSS 是一个运行时原子 CSS 引擎。它是一个模板字符串标签�
 
 ## Quick Start / 快速开始
 
-Install the package, then import the default instance and use it as a template tag. The tokens you write are returned unchanged, and the matching rules are injected into a `<style data-roxcss>` element in `<head>` — the effect is shown in the comments below:
+Install the package, then import the default instance and use it as a template tag. The tokens you write are returned unchanged, and the matching rules are injected into `<head>`:
 
-安装依赖后导入默认实例 `rox`，并把它作为模板标签使用。你写下的 token 会原样返回，匹配的规则注入到 `<head>` 中的 `<style data-roxcss>` 元素——效果见下面代码注释：
+安装依赖后导入默认实例 `rox`，并把它作为模板标签使用。你写下的 token 会原样返回，匹配的规则注入 `<head>`：
 
 ```bash
 npm install roxcss
@@ -33,15 +33,28 @@ npm install roxcss
 ```ts
 import { rox } from "roxcss";
 
-// returns tokens unchanged and injects the rules / 原样返回 token 并注入规则
+// tokens are returned unchanged / token 原样返回
 const className = rox`flex flex-col gap-16px p-24px rounded-8px hover:bg-blue`;
 
 document.body.className = className;
 // <body class="flex flex-col gap-16px p-24px rounded-8px hover:bg-blue">
-// a <style data-roxcss> in <head> now holds these rules / head 中的 <style data-roxcss> 现在持有这些规则：
-//   [class~="flex"] { display:flex }
-//   [class~="flex-col"] { display:flex;flex-direction:column }
-//   [class~="hover:bg-blue"]:hover { background:blue }
+```
+
+The call injects these rules into a `<style data-roxcss>` element in `<head>`:
+
+这次调用向 `<head>` 中的 `<style data-roxcss>` 元素注入以下规则：
+
+```css
+[class~="flex"] {
+  display: flex;
+}
+[class~="flex-col"] {
+  display: flex;
+  flex-direction: column;
+}
+[class~="hover:bg-blue"]:hover {
+  background: blue;
+}
 ```
 
 The tag function is sync: when the call returns, the rules are live. Repeated calls with the same tokens hit the cache and never touch the style layer again — steady-state rendering costs nothing beyond the returned string.
@@ -69,7 +82,8 @@ const myRox = createRox({
   },
 });
 
-myRox`md:flex-col p-16px`; // rule injected under a min-width: 768px media query / 规则注入到 min-width:768px 媒体查询中
+myRox`md:flex-col p-16px`;
+// the media-wrapped rule is injected / 媒体查询包裹的规则被注入
 ```
 
 ## How It Works / 工作方式
@@ -91,21 +105,21 @@ Match resolution, in order: exact key → `""` fallback → failure. On failure 
 // matcher tree / matcher 树
 {
   flex: {
-    "": () => "display:flex",            // flex / flex-xxx
-    col: () => "display:flex;flex-direction:column", // flex-col
+    "": () => "display:flex",                          // matches flex (fallback)
+    col: () => "display:flex;flex-direction:column",   // matches flex-col
     space: {
-      "": (v) => `justify-content:space-${v}`, // flex-space-between / flex-space-around
-      between: () => "justify-content:space-between",
+      "": (v) => `justify-content:space-${v}`,         // matches flex-space-* (fallback)
+      between: () => "justify-content:space-between",  // matches flex-space-between
     },
   },
-  rounded: (v) => `border-radius:${v}`,  // rounded-8px
+  rounded: (v) => `border-radius:${v}`,                // matches rounded-*
 }
 
 // token resolution / token 解析
-// flex            → flex[""]()                    → display:flex
-// flex-col        → flex.col()                    → flex-direction:column
-// flex-space-between → flex.space.between()       → justify-content:space-between
-// rounded-8px     → rounded("8px")                → border-radius:8px
+// flex               → flex[""]()           → display:flex
+// flex-col           → flex.col()           → flex-direction:column
+// flex-space-between → flex.space.between() → justify-content:space-between
+// rounded-8px        → rounded("8px")       → border-radius:8px
 ```
 
 ### Prefixes: pseudo-classes and environment modifiers / 前缀：伪类与环境修饰符
@@ -115,9 +129,14 @@ Tokens split by `:` — the first parts are prefixes, the last part is the match
 token 按 `:` 拆分——前面的部分是前缀，最后一段是 matcher 键。每个前缀段先查 `modifiers` 注册表：命中的是**环境修饰符**（最多一个——它把整条规则包裹进 `@media`、`.dark` 等环境），其余一律视为**伪类**，任意数量、任意顺序拼接到选择器上。
 
 ```ts
-myRox`hover:p-8px`; // [class~="hover:p-8px"]:hover { padding:8px }
-myRox`md:flex-col`; // @media (min-width:768px) { [class~="md:flex-col"] { display:flex;flex-direction:column } }
-myRox`md:hover:focus:p-8px`; // @media (min-width:768px) { [class~="..."]:hover:focus { padding:8px } }
+// → [class~="hover:p-8px"]:hover { padding:8px }
+myRox`hover:p-8px`;
+
+// → @media (min-width:768px) { [class~="md:flex-col"] { display:flex;flex-direction:column } }
+myRox`md:flex-col`;
+
+// → @media (min-width:768px) { [class~="md:hover:focus:p-8px"]:hover:focus { padding:8px } }
+myRox`md:hover:focus:p-8px`;
 ```
 
 ### Cache / 缓存
@@ -405,12 +424,10 @@ import { rox } from "./rox"; // your configured instance / 你配置好的实例
 
 ## Performance & Injection / 性能与注入
 
-- **Per-token resolution happens once.** Two `Set`s (`injected` / `failed`) deduplicate tokens for the life of an instance. Repeated renders never touch the style layer.
 - **Batch flush per call.** All new rules from one call are appended to the active `<style>` bucket in a single `textContent` write — one parse, one style invalidation. No per-rule `insertRule` (measured O(N²) under interleaved forced layout; see the docs).
 - **Rolling style buckets.** The active `<style data-roxcss>` element is reused until it holds 1000 rules, then frozen and a new one is created. Bucket count stays at `ceil(rules / 1000)` — no DevTools panel clutter.
 - **SSR safe.** With no DOM, rules are kept in memory and readable via `getCSS()`.
 
-- **每个 token 只解析一次**：两个 `Set`（`injected` / `failed`）在实例生命周期内去重，重复渲染不触碰样式层。
 - **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)）。
 - **滚动 style 桶**：活动 `<style data-roxcss>` 元素复用到 1000 条规则后冻结，新建下一个。桶数保持在 ceil(规则数 / 1000)——DevTools 面板不堆积。
 - **SSR 安全**：无 DOM 时规则保存在内存，经 `getCSS()` 读取。
