@@ -4,6 +4,8 @@
 > 决策点逐个讨论确认，确认后更新状态并落代码；不一口气做完。
 >
 > 数据源：Tailwind CSS v4 官方源码 `tailwindlabs/tailwindcss`（`packages/tailwindcss/src/utilities.ts`，main 分支，2026-09-02 拉取），对照 `src/config.ts` 现有 matcher 树与 `packages/example` 实际用法。
+> 在线浏览：<https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/src/utilities.ts>
+> raw 下载：<https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utilities.ts>
 
 ## 一、目标与原则
 
