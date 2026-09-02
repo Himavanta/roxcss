@@ -24,14 +24,14 @@ export const rox = createRox(
         half: () => "flex:1 1 calc(50% - 8px)",
       },
       // 页面 CSS 变量体系：剩余段拼为变量名，如 color-accent-bg → color:var(--accent-bg)
-      color: (vs) => `color:${cssVar(vs)}`,
-      bg: (vs) => `background:${cssVar(vs)}`,
+      color: (...vs) => `color:${cssVar(vs)}`,
+      bg: (...vs) => `background:${cssVar(vs)}`,
       border: {
         t: () => "border-top:1px solid var(--border)",
         b: () => "border-bottom:1px solid var(--border)",
-        r: ([v]) => (v == null ? "border-right:1px solid var(--border)" : `border-right:${v}`),
+        r: (v) => (v == null ? "border-right:1px solid var(--border)" : `border-right:${v}`),
         x: () => "border-inline:1px solid var(--border)",
-        color: (vs) => `border-color:${cssVar(vs)}`,
+        color: (...vs) => `border-color:${cssVar(vs)}`,
       },
       outline: () => "outline:2px solid var(--accent);outline-offset:2px",
       shadow: () => "box-shadow:var(--shadow)",

@@ -347,7 +347,7 @@ test("函数覆盖整棵子树", () => {
     createConfig({
       matchers: {
         // 把默认的树形 text 整体替换成自定义函数
-        text: (vs) => `text-transform:${vs.join(" ")}`,
+        text: (...vs) => `text-transform:${vs.join(" ")}`,
       },
     }),
   );

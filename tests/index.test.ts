@@ -10,15 +10,15 @@ const custom = createRox({
     flex: {
       "": () => "display:flex",
       space: {
-        "": ([v]: string[]) => `justify-content:space-${v}`,
+        "": (v: string) => `justify-content:space-${v}`,
         between: () => "justify-content:space-between",
         around: () => "justify-content:space-around",
       },
     },
-    p: ([v]: string[]) => `padding:${v}px`,
-    m: ([v]: string[]) => `margin:${v}px`,
-    bg: ([v]: string[]) => `background:${v}`,
-    border: (vs: string[]) => `border:${vs.join(" ")}`,
+    p: (v: string) => `padding:${v}px`,
+    m: (v: string) => `margin:${v}px`,
+    bg: (v: string) => `background:${v}`,
+    border: (width: string, style: string, color: string) => `border:${width} ${style} ${color}`,
     broken: () => null,
   },
 });
@@ -79,7 +79,7 @@ test("环境修饰符 + 伪类", () => {
   );
 });
 
-test("多个参数以数组传入", () => {
+test("多段值展开为多个参数传入 matcher", () => {
   expect(custom`border-1px-solid-red`).toBe("border-1px-solid-red");
   expect(custom.getCSS()).toContain(`[class~="border-1px-solid-red"] { border:1px solid red }`);
 });
@@ -103,7 +103,7 @@ test("matcher 返回 null 导致匹配失败", () => {
 });
 
 test("缓存：重复 token 不重复注入", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   expect(a`p-1`).toBe("p-1");
   const before = a.getCSS();
   expect(a`p-1`).toBe("p-1");
@@ -111,32 +111,32 @@ test("缓存：重复 token 不重复注入", () => {
 });
 
 test("模板插值", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   const n = 4;
   expect(a`p-${n}`).toBe("p-4");
 });
 
 test("空白与换行拆分", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   expect(a`\n  p-1   p-2\tp-3  `).toBe("p-1 p-2 p-3");
 });
 
 test("极端：空模板与纯空白模板返回空串", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   expect(a``).toBe("");
   expect(a`   \n\t  `).toBe("");
   expect(a.getCSS()).toBe("");
 });
 
 test("极端：根无法匹配的 token（中文/Unicode）不注入", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   const before = a.getCSS().length;
   expect(a`你好`).toBe("你好");
   expect(a.getCSS().length).toBe(before);
 });
 
 test("极端：token 首连字符拆出空根段 → 匹配失败", () => {
-  const a = createRox({ matchers: { p: ([v]: string[]) => `padding:${v}px` } });
+  const a = createRox({ matchers: { p: (v: string) => `padding:${v}px` } });
   const before = a.getCSS().length;
   expect(a`-p-1`).toBe("-p-1");
   expect(a.getCSS().length).toBe(before);
@@ -155,7 +155,7 @@ test("极端：token 尾连字符落到兜底（flex- 等价 flex）", () => {
 test("极端：环境修饰符 + 多伪类（含连字符）完整链", () => {
   const a = createRox({
     modifiers: { md: (s, d) => `@media (min-width: 768px) { ${s} { ${d} } }` },
-    matchers: { bg: ([v]: string[]) => `background:${v}` },
+    matchers: { bg: (v: string) => `background:${v}` },
   });
   expect(a`md:hover:focus-within:bg-blue`).toBe("md:hover:focus-within:bg-blue");
   expect(a.getCSS()).toContain(

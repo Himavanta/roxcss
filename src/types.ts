@@ -1,8 +1,8 @@
 /**
- * 匹配器函数：接收从当前段开始的所有剩余段（数组，可能为空），
+ * 匹配器函数：接收从当前段开始的所有剩余段（每段一个参数，可能为空），
  * 返回 CSS 声明字符串；返回 null 表示匹配失败。
  */
-export type MatcherFunction = (args: string[]) => string | null;
+export type MatcherFunction = (...args: string[]) => string | null;
 
 /**
  * 匹配器节点：函数（等价于 `{ "": fn }`）或嵌套对象。

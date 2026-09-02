@@ -112,57 +112,57 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     normal: () => "align-content:normal",
   },
   place: {
-    content: ([v]) => `place-content:${v}`,
-    items: ([v]) => `place-items:${v}`,
+    content: (v) => `place-content:${v}`,
+    items: (v) => `place-items:${v}`,
   },
   grid: {
     "": () => "display:grid",
-    cols: ([v]) => `grid-template-columns:repeat(${v},minmax(0,1fr))`,
-    rows: ([v]) => `grid-template-rows:repeat(${v},minmax(0,1fr))`,
+    cols: (v) => `grid-template-columns:repeat(${v},minmax(0,1fr))`,
+    rows: (v) => `grid-template-rows:repeat(${v},minmax(0,1fr))`,
   },
-  col: { span: ([v]) => `grid-column:span ${v} / span ${v}` },
-  row: { span: ([v]) => `grid-row:span ${v} / span ${v}` },
+  col: { span: (v) => `grid-column:span ${v} / span ${v}` },
+  row: { span: (v) => `grid-row:span ${v} / span ${v}` },
 
   // 间距（多段值按顺序拼为简写）
-  p: (vs) => `padding:${space(vs)}`,
-  px: (vs) => `padding-inline:${space(vs)}`,
-  py: (vs) => `padding-block:${space(vs)}`,
-  pt: (vs) => `padding-top:${space(vs)}`,
-  pr: (vs) => `padding-right:${space(vs)}`,
-  pb: (vs) => `padding-bottom:${space(vs)}`,
-  pl: (vs) => `padding-left:${space(vs)}`,
-  m: (vs) => `margin:${space(vs)}`,
-  mx: (vs) => `margin-inline:${space(vs)}`,
-  my: (vs) => `margin-block:${space(vs)}`,
-  mt: (vs) => `margin-top:${space(vs)}`,
-  mr: (vs) => `margin-right:${space(vs)}`,
-  mb: (vs) => `margin-bottom:${space(vs)}`,
-  ml: (vs) => `margin-left:${space(vs)}`,
+  p: (...vs) => `padding:${space(vs)}`,
+  px: (...vs) => `padding-inline:${space(vs)}`,
+  py: (...vs) => `padding-block:${space(vs)}`,
+  pt: (...vs) => `padding-top:${space(vs)}`,
+  pr: (...vs) => `padding-right:${space(vs)}`,
+  pb: (...vs) => `padding-bottom:${space(vs)}`,
+  pl: (...vs) => `padding-left:${space(vs)}`,
+  m: (...vs) => `margin:${space(vs)}`,
+  mx: (...vs) => `margin-inline:${space(vs)}`,
+  my: (...vs) => `margin-block:${space(vs)}`,
+  mt: (...vs) => `margin-top:${space(vs)}`,
+  mr: (...vs) => `margin-right:${space(vs)}`,
+  mb: (...vs) => `margin-bottom:${space(vs)}`,
+  ml: (...vs) => `margin-left:${space(vs)}`,
   gap: {
-    "": ([v]) => `gap:${v}`,
-    x: ([v]) => `column-gap:${v}`,
-    y: ([v]) => `row-gap:${v}`,
+    "": (v) => `gap:${v}`,
+    x: (v) => `column-gap:${v}`,
+    y: (v) => `row-gap:${v}`,
   },
 
   // 尺寸
-  aspect: ([v]) => `aspect-ratio:${v}`,
-  size: ([v]) => `width:${v};height:${v}`,
-  w: ([v]) => `width:${v}`,
-  h: ([v]) => `height:${v}`,
+  aspect: (v) => `aspect-ratio:${v}`,
+  size: (v) => `width:${v};height:${v}`,
+  w: (v) => `width:${v}`,
+  h: (v) => `height:${v}`,
   max: {
-    w: ([v]) => `max-width:${v}`,
-    h: ([v]) => `max-height:${v}`,
+    w: (v) => `max-width:${v}`,
+    h: (v) => `max-height:${v}`,
   },
   min: {
-    w: ([v]) => `min-width:${v}`,
-    h: ([v]) => `min-height:${v}`,
+    w: (v) => `min-width:${v}`,
+    h: (v) => `min-height:${v}`,
   },
 
   // 颜色与文本
-  bg: ([v]) => `background:${v}`,
-  color: ([v]) => `color:${v}`,
+  bg: (v) => `background:${v}`,
+  color: (v) => `color:${v}`,
   text: {
-    "": ([v]) => `font-size:${v}`,
+    "": (v) => `font-size:${v}`,
     center: () => "text-align:center",
     left: () => "text-align:left",
     right: () => "text-align:right",
@@ -177,17 +177,17 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
   // 边框（简写与方向子项统一支持多段值）
   border: {
-    "": (vs) => `border:${space(vs)}`,
-    t: (vs) => `border-top:${space(vs)}`,
-    b: (vs) => `border-bottom:${space(vs)}`,
-    r: (vs) => `border-right:${space(vs)}`,
-    l: (vs) => `border-left:${space(vs)}`,
-    x: (vs) => `border-inline:${space(vs)}`,
-    y: (vs) => `border-block:${space(vs)}`,
-    color: (vs) => `border-color:${space(vs)}`,
+    "": (...vs) => `border:${space(vs)}`,
+    t: (...vs) => `border-top:${space(vs)}`,
+    b: (...vs) => `border-bottom:${space(vs)}`,
+    r: (...vs) => `border-right:${space(vs)}`,
+    l: (...vs) => `border-left:${space(vs)}`,
+    x: (...vs) => `border-inline:${space(vs)}`,
+    y: (...vs) => `border-block:${space(vs)}`,
+    color: (...vs) => `border-color:${space(vs)}`,
   },
-  outline: ([v]) => `outline:${v}`,
-  rounded: ([v]) => `border-radius:${v}`,
+  outline: (v) => `outline:${v}`,
+  rounded: (v) => `border-radius:${v}`,
 
   // 位置与层级
   static: () => "position:static",
@@ -195,14 +195,14 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   absolute: () => "position:absolute",
   fixed: () => "position:fixed",
   sticky: () => "position:sticky",
-  z: ([v]) => `z-index:${v}`,
-  top: ([v]) => `top:${v}`,
-  right: ([v]) => `right:${v}`,
-  bottom: ([v]) => `bottom:${v}`,
-  left: ([v]) => `left:${v}`,
+  z: (v) => `z-index:${v}`,
+  top: (v) => `top:${v}`,
+  right: (v) => `right:${v}`,
+  bottom: (v) => `bottom:${v}`,
+  left: (v) => `left:${v}`,
   inset: {
-    x: ([v]) => `inset-inline:${v}`,
-    y: ([v]) => `inset-block:${v}`,
+    x: (v) => `inset-inline:${v}`,
+    y: (v) => `inset-block:${v}`,
   },
 
   // 盒模型与效果
@@ -210,22 +210,22 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     border: () => "box-sizing:border-box",
     content: () => "box-sizing:content-box",
   },
-  shadow: ([v]) => `box-shadow:${v}`,
-  opacity: ([v]) => `opacity:${v}`,
+  shadow: (v) => `box-shadow:${v}`,
+  opacity: (v) => `opacity:${v}`,
   overflow: {
     hidden: () => "overflow:hidden",
     scroll: () => "overflow:scroll",
     auto: () => "overflow:auto",
     visible: () => "overflow:visible",
     clip: () => "overflow:clip",
-    x: ([v]) => `overflow-x:${v}`,
-    y: ([v]) => `overflow-y:${v}`,
+    x: (v) => `overflow-x:${v}`,
+    y: (v) => `overflow-y:${v}`,
   },
-  transition: ([v]) => `transition:${v}`,
-  duration: ([v]) => `transition-duration:${v}`,
-  delay: ([v]) => `transition-delay:${v}`,
+  transition: (v) => `transition:${v}`,
+  duration: (v) => `transition-duration:${v}`,
+  delay: (v) => `transition-delay:${v}`,
   ease: {
-    "": ([v]) => `transition-timing-function:${v}`,
+    "": (v) => `transition-timing-function:${v}`,
     linear: () => "transition-timing-function:linear",
     in: {
       "": () => "transition-timing-function:ease-in",
@@ -233,9 +233,9 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     },
     out: () => "transition-timing-function:ease-out",
   },
-  transform: ([v]) => `transform:${v}`,
-  animate: ([v]) => `animation:${v}`,
-  cursor: ([v]) => `cursor:${v}`,
+  transform: (v) => `transform:${v}`,
+  animate: (v) => `animation:${v}`,
+  cursor: (v) => `cursor:${v}`,
 
   // 交互与表单
   pointer: {
@@ -250,7 +250,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     all: () => "-webkit-user-select:all;user-select:all",
     auto: () => "-webkit-user-select:auto;user-select:auto",
   },
-  appearance: ([v]) => `appearance:${v}`,
+  appearance: (v) => `appearance:${v}`,
   resize: {
     "": () => "resize:both",
     none: () => "resize:none",
@@ -266,7 +266,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
   // 文本排版
   whitespace: {
-    "": ([v]) => `white-space:${v}`,
+    "": (v) => `white-space:${v}`,
     pre: {
       "": () => "white-space:pre",
       wrap: () => "white-space:pre-wrap",
@@ -285,11 +285,11 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     anywhere: () => "overflow-wrap:anywhere",
     break: { word: () => "overflow-wrap:break-word" },
   },
-  leading: ([v]) => `line-height:${v}`,
-  tracking: ([v]) => `letter-spacing:${v}`,
+  leading: (v) => `line-height:${v}`,
+  tracking: (v) => `letter-spacing:${v}`,
   truncate: () => "overflow:hidden;text-overflow:ellipsis;white-space:nowrap",
   align: {
-    "": ([v]) => `vertical-align:${v}`,
+    "": (v) => `vertical-align:${v}`,
     text: {
       top: () => "vertical-align:text-top",
       bottom: () => "vertical-align:text-bottom",
@@ -334,7 +334,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
   // object-fit（object-position 待 P3）
   object: {
-    "": ([v]) => `object-fit:${v}`,
+    "": (v) => `object-fit:${v}`,
     scale: { down: () => "object-fit:scale-down" },
   },
 
