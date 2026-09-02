@@ -6,21 +6,19 @@ roxcss 是一个运行时原子 CSS 引擎。它是一个模板字符串标签�
 
 ## Features / 特性
 
-- **Zero build, zero config.** Rules are generated and injected at runtime. Nothing to precompile.
-- **Framework-agnostic.** Works anywhere a template tag works: plain HTML, Vue, React, Svelte, or a raw `document.querySelector`.
-- **Class names pass through.** The token you write is the class name in the DOM — what you see in DevTools is exactly what you typed. No generated hash names.
-- **Value passthrough.** Values are inserted as-is. `w-170px` means `width: 170px`. There is no magic between the token and the declaration.
-- **Tailwind-aligned default preset.** The built-in preset follows Tailwind v4 naming (`flex-col`, `rounded`, `grid-cols-3`, `hover:bg-...`), while the value system stays roxcss-native (see [Default Preset / 默认预设](#default-preset--默认预设)).
-- **Sync by design.** When the `rox` call returns, the rules are already in effect.
+- **Zero build, zero config** — rules are generated and injected at runtime, the first time a class name is used. Nothing to precompile.
+- **Framework-agnostic** — works anywhere a template-string tag works: plain HTML, Vue, React, and more.
+- **No hidden class names** — the class you write is the class in the DOM and the selector in DevTools. What you see is what you typed.
+- **Values, not magic** — `w-170px` means exactly `width: 170px`. No numeric scale sits between your token and the CSS.
+- **Tailwind-style preset** — a built-in preset reuses Tailwind v4 utility names, ready to extend or replace (see [Default Preset / 默认预设](#default-preset--默认预设)).
+- **Synchronous** — the rules are live the moment the call returns.
 
----
-
-- **零构建、零配置**：规则在运行时生成并注入，无需任何预编译。
-- **框架无关**：任何模板标签可用的地方都能用——原生 HTML、Vue、React、Svelte，甚至裸 `document.querySelector`。
-- **类名透传**：你写下的 token 就是 DOM 中的类名，DevTools 里看到的就是你输入的原文，没有哈希类名。
-- **值透传**：值原样插入声明。`w-170px` 就是 `width: 170px`。token 与声明之间没有魔法。
-- **对齐 Tailwind 的默认预设**：内置预设沿用 Tailwind v4 命名（`flex-col`、`rounded`、`grid-cols-3`、`hover:bg-...`），数值体系保持 roxcss 原生（见 [Default Preset / 默认预设](#default-preset--默认预设)）。
-- **天生同步**：`rox` 调用返回时，规则已经生效。
+- **零构建、零配置**：类名首次使用时，规则在运行时生成并注入，无需任何预编译。
+- **框架无关**：任何模板字符串标签可用的地方都能用——原生 HTML、Vue、React 等。
+- **类名即真相**：你写下的类名就是 DOM 中的类、DevTools 中的选择器。所见即所写。
+- **无魔法值**：`w-170px` 就是 `width: 170px`。token 与 CSS 之间没有数值刻度。
+- **Tailwind 风格预设**：内置预设复用 Tailwind v4 工具类命名，可自由扩展或替换（见 [Default Preset / 默认预设](#default-preset--默认预设)）。
+- **天生同步**：调用返回的瞬间，规则已经生效。
 
 ## Quick Start / 快速开始
 
@@ -378,37 +376,64 @@ Tailwind overloads `text-*` for color; roxcss keeps them apart: `text-16px` → 
 
 Tailwind 用 `text-*` 兼任颜色；roxcss 分开处理：`text-16px` → 字号，`color-accent` → 颜色。
 
-The preset covers layout, spacing, sizing, typography, borders, effects, and more. Class names below show how values map into declarations — because values pass through, the token value appears verbatim in the CSS. This is a selection; the full listing lives in `docs/预设设计.md`.
+The preset covers layout, spacing, typography, borders, colors, and effects, grouped by category below — each class maps one-to-one to a declaration, and the value in the class name appears verbatim in the CSS. This is a selection; the full listing lives in `docs/预设设计.md`.
 
-默认预设覆盖布局、间距、尺寸、排版、边框、效果等。下表展示类名如何映射为声明——由于值透传，类名中的值会原样出现在 CSS 中。此为节选，完整清单见 `docs/预设设计.md`。
+默认预设覆盖布局、间距、排版、边框、颜色与效果。下面按类别示例——每个类名一对一映射到声明，类名中的值原样出现在 CSS 中。此为节选，完整清单见 `docs/预设设计.md`。
 
-| Class / 类名                           | Declaration / 声明                                                                             |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `flex` / `flex-col` / `flex-row`       | `display:flex` / `flex-direction:column` / `flex-direction:row`                                |
-| `flex-1` / `grow`                      | `flex:1` / `flex-grow:1`                                                                       |
-| `items-center` / `justify-between`     | `align-items:center` / `justify-content:space-between`                                         |
-| `gap-16px` / `gap-x-8px`               | `gap:16px` / `column-gap:8px`                                                                  |
-| `grid` / `grid-cols-3`                 | `display:grid` / `grid-template-columns:repeat(3,minmax(0,1fr))`                               |
-| `col-span-2`                           | `grid-column:span 2 / span 2`                                                                  |
-| `p-24px` / `pt-8px`                    | `padding:24px` / `padding-top:8px`                                                             |
-| `w-170px` / `h-28px`                   | `width:170px` / `height:28px`                                                                  |
-| `inset-x-0` / `top-0`                  | `inset-inline:0` / `top:0`                                                                     |
-| `z-10` / `relative` / `absolute`       | `z-index:10` / `position:relative` / `position:absolute`                                       |
-| `text-16px` / `text-center`            | `font-size:16px` / `text-align:center`                                                         |
-| `font-bold` / `leading-16px`           | `font-weight:700` / `line-height:16px`                                                         |
-| `rounded-5px` / `border-2px-solid-red` | `border-radius:5px` / `border:2px solid red`                                                   |
-| `bg-blue` / `color-red`                | `background:blue` / `color:red`                                                                |
-| `duration-150ms` / `delay-75ms`        | `transition-duration:150ms` / `transition-delay:75ms`                                          |
-| `overflow-hidden` / `overflow-x-auto`  | `overflow:hidden` / `overflow-x:auto`                                                          |
-| `underline` / `truncate`               | `text-decoration-line:underline` / `overflow:hidden;text-overflow:ellipsis;white-space:nowrap` |
-| `whitespace-nowrap` / `break-all`      | `white-space:nowrap` / `word-break:break-all`                                                  |
-| `hidden` / `inline-flex`               | `display:none` / `inline-flex`                                                                 |
-| `list-none` / `list-disc`              | `list-style:none` / `list-style-type:disc`                                                     |
-| `isolate` / `aspect-16/9`              | `isolation:isolate` / `aspect-ratio:16/9`                                                      |
+**Layout / 布局：**
 
-Breakpoints come from `createModifiers()` with `defaultBreakpoints`, all `min-width` media queries. Prefix a token with a breakpoint and it applies from that width up:
+```text
+flex              → display:flex
+flex-col          → display:flex;flex-direction:column
+grid-cols-3       → display:grid;grid-template-columns:repeat(3,minmax(0,1fr))
+items-center      → align-items:center
+justify-between   → justify-content:space-between
+gap-16px          → gap:16px
+p-24px            → padding:24px
+w-170px           → width:170px
+```
 
-断点由 `createModifiers()` 基于 `defaultBreakpoints` 生成，全部为 `min-width` 媒体查询。在 token 前加断点前缀，规则从该宽度起生效：
+**Typography / 排版：**
+
+```text
+text-16px         → font-size:16px
+text-center       → text-align:center
+font-bold         → font-weight:700
+leading-16px      → line-height:16px
+underline         → text-decoration-line:underline
+truncate          → overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+```
+
+**Borders, colors & effects / 边框、颜色与效果：**
+
+```text
+rounded-5px       → border-radius:5px
+border-2px-solid-red → border:2px solid red
+bg-blue           → background:blue
+color-red         → color:red
+duration-150ms    → transition-duration:150ms
+delay-75ms        → transition-delay:75ms
+```
+
+**Position, overflow & more / 定位、溢出与其他：**
+
+```text
+relative          → position:relative
+inset-x-0         → inset-inline:0
+z-10              → z-index:10
+overflow-x-auto   → overflow-x:auto
+hidden            → display:none
+list-none         → list-style:none
+aspect-16/9       → aspect-ratio:16/9
+```
+
+Families share a pattern: every side and axis variant exists — `m` mirrors `p`, `overflow-y` mirrors `overflow-x`, and so on.
+
+工具类家族遵循同一模式：每个方向与轴向的变体都存在——`m` 与 `p` 对应，`overflow-y` 与 `overflow-x` 对应，依此类推。
+
+Breakpoints come from `createModifiers()` with `defaultBreakpoints`, all `min-width` media queries. Prefix a class name with a breakpoint and it applies from that width up:
+
+断点由 `createModifiers()` 基于 `defaultBreakpoints` 生成，全部为 `min-width` 媒体查询。在类名前加断点前缀，规则从该宽度起生效：
 
 ```html
 <div class="flex-col lg:flex-row">…</div>
