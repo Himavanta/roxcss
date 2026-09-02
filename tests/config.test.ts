@@ -450,7 +450,7 @@ test("极端：modifiers 自定义覆盖断点，其他断点保留", () => {
   const a = createRox(
     createConfig({
       modifiers: {
-        md: (_c, s, d) => `@media (max-width: 767px) { ${s} { ${d} } }`,
+        md: (s, d) => `@media (max-width: 767px) { ${s} { ${d} } }`,
       },
     }),
   );

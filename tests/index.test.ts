@@ -3,9 +3,8 @@ import { createRox, createConfig, rox } from "../src/index.ts";
 
 const custom = createRox({
   modifiers: {
-    md: (className, selector, cssDecl) =>
-      `@media (min-width: 768px) { ${selector} { ${cssDecl} } }`,
-    dark: (className, selector, cssDecl) => `.dark ${selector} { ${cssDecl} }`,
+    md: (selector, cssDecl) => `@media (min-width: 768px) { ${selector} { ${cssDecl} } }`,
+    dark: (selector, cssDecl) => `.dark ${selector} { ${cssDecl} }`,
   },
   matchers: {
     flex: {
@@ -155,7 +154,7 @@ test("极端：token 尾连字符落到兜底（flex- 等价 flex）", () => {
 
 test("极端：环境修饰符 + 多伪类（含连字符）完整链", () => {
   const a = createRox({
-    modifiers: { md: (_c, s, d) => `@media (min-width: 768px) { ${s} { ${d} } }` },
+    modifiers: { md: (s, d) => `@media (min-width: 768px) { ${s} { ${d} } }` },
     matchers: { bg: ([v]: string[]) => `background:${v}` },
   });
   expect(a`md:hover:focus-within:bg-blue`).toBe("md:hover:focus-within:bg-blue");

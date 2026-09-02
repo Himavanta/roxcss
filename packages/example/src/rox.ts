@@ -16,8 +16,7 @@ export const rox = createRox(
   createConfig({
     modifiers: {
       // 页面原有响应式断点：max-width 1024px（覆盖默认的 min-width 语义）
-      lg: (_className, selector, cssDecl) =>
-        `@media (max-width: 1024px) { ${selector} { ${cssDecl} } }`,
+      lg: (selector, cssDecl) => `@media (max-width: 1024px) { ${selector} { ${cssDecl} } }`,
     },
     matchers: {
       // 递归覆盖默认 flex 树，仅补页面私有的 half（lg 两栏布局各占一半）

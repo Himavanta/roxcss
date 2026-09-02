@@ -124,7 +124,7 @@ function injectRule(
   },
 ): string {
   const selector = `[class~="${token}"]${pseudos.map((p) => `:${p}`).join("")}`;
-  const rule = envModifier ? envModifier(token, selector, cssDecl) : `${selector} { ${cssDecl} }`;
+  const rule = envModifier ? envModifier(selector, cssDecl) : `${selector} { ${cssDecl} }`;
   ctx.rules.push(rule);
   batch.push(rule);
   ctx.injected.add(token);

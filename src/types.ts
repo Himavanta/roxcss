@@ -16,9 +16,9 @@ export type MatcherNode =
 
 /**
  * 环境修饰器：只处理规则层面的包裹（媒体查询、容器查询、主题选择器等），
- * 不处理选择器层面的伪类。
+ * 不处理选择器层面的伪类。selector 已含 token 与伪类（如 [class~="md:p-4px"]:hover）。
  */
-export type Modifier = (className: string, selector: string, cssDecl: string) => string;
+export type Modifier = (selector: string, cssDecl: string) => string;
 
 export interface RoxOptions {
   matchers: Record<string, MatcherNode>;

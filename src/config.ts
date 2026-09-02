@@ -31,7 +31,7 @@ export function createModifiers(
 ): Record<string, Modifier> {
   const result: Record<string, Modifier> = {};
   for (const [name, px] of Object.entries(breakpoints)) {
-    result[name] = (_className, selector, cssDecl) =>
+    result[name] = (selector, cssDecl) =>
       `@media (min-width: ${px}px) { ${selector} { ${cssDecl} } }`;
   }
   return result;
