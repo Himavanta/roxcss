@@ -88,14 +88,21 @@ myRox`md:flex-col p-16px`;
 
 ## How It Works / 工作方式
 
-A token is split by `-` into segments, and the segments walk a nested **matcher tree**. Two kinds of nodes exist:
+A token is split by `-` into segments, and the segments walk a nested **matcher tree** with two kinds of nodes — functions and objects:
 
-token 按 `-` 拆成段，段在嵌套的 **matcher 树**中逐段查找。节点只有两种：
+token 按 `-` 拆成段，段在嵌套的 **matcher 树**中逐段查找。节点只有两种——函数与对象：
 
-| Node / 节点     | Example / 示例                                     | Behavior / 行为                                                                                              |
-| --------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Function / 函数 | `p: (v) => \`padding:${v}\``                       | Swallows all remaining segments, called with one argument per segment. / 吞掉所有剩余段，每段一个参数调用    |
-| Object / 对象   | `{ flex: { "": () => "display:flex", col: ... } }` | Container. Segments are used as keys to descend; `""` is the fallback. / 容器。段作为键向下查找，`""` 为兜底 |
+**Function node / 函数节点：**
+
+A function swallows all remaining segments and is called with one argument per segment. `p: (v) => \`padding:${v}\``turns`p-24px`into`padding:24px`.
+
+函数节点吞掉所有剩余段，剩余段每段一个参数传入调用。`p: (v) => \`padding:${v}\``把`p-24px`变成`padding:24px`。
+
+**Object node / 对象节点：**
+
+An object is a container that remaining segments descend through as keys; the `""` key holds the fallback. In `{ flex: { "": () => "display:flex", col: () => ... } }`, the token `flex-col` descends `flex` → `col`, while the bare `flex` falls back to `""`.
+
+对象节点是容器，剩余段作为键逐层下行；`""` 键保存兜底。对于 `{ flex: { "": () => "display:flex", col: () => ... } }`，token `flex-col` 沿 `flex` → `col` 下行，单独的 `flex` 落入 `""` 兜底。
 
 Match resolution, in order: exact key → `""` fallback → failure. On failure the token is returned unchanged and no rule is injected. A function returning `null` also means failure.
 
