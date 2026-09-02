@@ -1,6 +1,6 @@
 # RoxCSS × Tailwind v4 对齐计划
 
-> 状态：P1/P2 已实施完成（2026-09-02）；对齐主体收敛，剩余差距候选见"七"（P4，逐项待确认）。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
+> 状态：P1/P2/P4 已实施完成（2026-09-02）；对齐主体收敛，剩余为低频族与值解析（P3）。本文档记录对齐目标、覆盖矩阵、决策点（D 编号）与分批实施计划。
 > 决策点逐个讨论确认，确认后更新状态并落代码；不一口气做完。
 >
 > 数据源：Tailwind CSS v4 官方源码 `tailwindlabs/tailwindcss`（`packages/tailwindcss/src/utilities.ts`，main 分支，2026-09-02 拉取），对照 `src/config.ts` 现有 matcher 树与 `packages/example` 实际用法。
@@ -196,13 +196,13 @@ Tailwind 默认断点 `sm 640 md 768 lg 1024 xl 1280 2xl 1536`；roxcss 缺 `2xl
 - [x] P1 完成（2026-09-02）：19 项新增 matcher + 10 组测试，39 测试全绿，提交 2da2454
 - [x] P2 完成（2026-09-02）：config 迁移 + example 同步 + P2 测试组，45 测试全绿
 - [x] 对齐主体收官（2026-09-02）：递归覆盖合并 / null 删除 / 容器严格语义 / Modifier 双参 / 警告英文 / 63 测试全绿
-- [ ] P4：七节候选逐项确认 → 分批实施
+- [x] P4 完成（2026-09-02）：7.1+7.2 全部落地（gap-x/y、self、justify-self、content、text-justify、leading/tracking、duration/delay、break/wrap、list 类型、box-content、grid-rows、col-span/row-span、ease、aspect、object、isolation-auto），68 测试全绿；合法字符集补 `/`
 
 ---
 
 ## 七、剩余差距与后续候选（P4，逐项待确认）
 
-> P1/P2 落地后与 Tailwind 的剩余差距分三类：频率中高的零成本键、需子树改造的族、依赖值解析（P3）的语义键表。输出值以 utilities.ts（main 分支）核实为准。
+> P1/P2 落地后与 Tailwind 的剩余差距分三类：频率中高的零成本键、需子树改造的族、依赖值解析（P3）的语义键表。输出值以 utilities.ts（main 分支）核实为准。**7.1/7.2 已全部实施（2026-09-02），仅剩 7.3。**
 
 ### 7.1 建议优先（高频、形态明确）
 

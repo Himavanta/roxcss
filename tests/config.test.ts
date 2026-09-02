@@ -460,3 +460,91 @@ test("极端：modifiers 自定义覆盖断点，其他断点保留", () => {
   expect(a`sm:flex`).toBe("sm:flex");
   expect(a.getCSS()).toContain(`@media (min-width: 640px) { [class~="sm:flex"] { display:flex } }`);
 });
+
+// ---- P4：剩余差距候选 ----
+
+test("P4 布局：gap-x/y、self、justify-self、content（align-content）", () => {
+  expect(rox`gap-x-8px`).toBe("gap-x-8px");
+  expect(rox.getCSS()).toContain(`[class~="gap-x-8px"] { column-gap:8px }`);
+  expect(rox`gap-y-4px`).toBe("gap-y-4px");
+  expect(rox.getCSS()).toContain(`[class~="gap-y-4px"] { row-gap:4px }`);
+  // gap 简写兜底兼容
+  expect(rox`gap-8px`).toBe("gap-8px");
+  expect(rox.getCSS()).toContain(`[class~="gap-8px"] { gap:8px }`);
+
+  expect(rox`self-start`).toBe("self-start");
+  expect(rox.getCSS()).toContain(`[class~="self-start"] { align-self:flex-start }`);
+  expect(rox`self-baseline`).toBe("self-baseline");
+  expect(rox.getCSS()).toContain(`[class~="self-baseline"] { align-self:baseline }`);
+
+  expect(rox`justify-self-center`).toBe("justify-self-center");
+  expect(rox.getCSS()).toContain(`[class~="justify-self-center"] { justify-self:center }`);
+
+  expect(rox`content-between`).toBe("content-between");
+  expect(rox.getCSS()).toContain(`[class~="content-between"] { align-content:space-between }`);
+  expect(rox`content-evenly`).toBe("content-evenly");
+  expect(rox.getCSS()).toContain(`[class~="content-evenly"] { align-content:space-evenly }`);
+});
+
+test("P4 文本：text-justify、leading、tracking、break/wrap 断行", () => {
+  expect(rox`text-justify`).toBe("text-justify");
+  expect(rox.getCSS()).toContain(`[class~="text-justify"] { text-align:justify }`);
+
+  expect(rox`leading-1.5`).toBe("leading-1.5");
+  expect(rox.getCSS()).toContain(`[class~="leading-1.5"] { line-height:1.5 }`);
+  expect(rox`tracking-1px`).toBe("tracking-1px");
+  expect(rox.getCSS()).toContain(`[class~="tracking-1px"] { letter-spacing:1px }`);
+
+  expect(rox`break-all`).toBe("break-all");
+  expect(rox.getCSS()).toContain(`[class~="break-all"] { word-break:break-all }`);
+  expect(rox`wrap-break-word`).toBe("wrap-break-word");
+  expect(rox.getCSS()).toContain(`[class~="wrap-break-word"] { overflow-wrap:break-word }`);
+  expect(rox`wrap-anywhere`).toBe("wrap-anywhere");
+  expect(rox.getCSS()).toContain(`[class~="wrap-anywhere"] { overflow-wrap:anywhere }`);
+});
+
+test("P4 动效：duration/delay/ease", () => {
+  expect(rox`duration-300ms`).toBe("duration-300ms");
+  expect(rox.getCSS()).toContain(`[class~="duration-300ms"] { transition-duration:300ms }`);
+  expect(rox`delay-100ms`).toBe("delay-100ms");
+  expect(rox.getCSS()).toContain(`[class~="delay-100ms"] { transition-delay:100ms }`);
+
+  expect(rox`ease-in-out`).toBe("ease-in-out");
+  expect(rox.getCSS()).toContain(
+    `[class~="ease-in-out"] { transition-timing-function:ease-in-out }`,
+  );
+  expect(rox`ease-linear`).toBe("ease-linear");
+  expect(rox.getCSS()).toContain(`[class~="ease-linear"] { transition-timing-function:linear }`);
+});
+
+test("P4 grid：grid-rows、col-span、row-span", () => {
+  expect(rox`grid-rows-3`).toBe("grid-rows-3");
+  expect(rox.getCSS()).toContain(
+    `[class~="grid-rows-3"] { grid-template-rows:repeat(3,minmax(0,1fr)) }`,
+  );
+  expect(rox`col-span-2`).toBe("col-span-2");
+  expect(rox.getCSS()).toContain(`[class~="col-span-2"] { grid-column:span 2 / span 2 }`);
+  expect(rox`row-span-2`).toBe("row-span-2");
+  expect(rox.getCSS()).toContain(`[class~="row-span-2"] { grid-row:span 2 / span 2 }`);
+});
+
+test("P4 其他补全：list 类型 / box-content / aspect / object / isolation-auto", () => {
+  expect(rox`list-disc`).toBe("list-disc");
+  expect(rox.getCSS()).toContain(`[class~="list-disc"] { list-style-type:disc }`);
+  expect(rox`list-decimal`).toBe("list-decimal");
+  expect(rox.getCSS()).toContain(`[class~="list-decimal"] { list-style-type:decimal }`);
+
+  expect(rox`box-content`).toBe("box-content");
+  expect(rox.getCSS()).toContain(`[class~="box-content"] { box-sizing:content-box }`);
+
+  expect(rox`aspect-16/9`).toBe("aspect-16/9");
+  expect(rox.getCSS()).toContain(`[class~="aspect-16/9"] { aspect-ratio:16/9 }`);
+
+  expect(rox`object-cover`).toBe("object-cover");
+  expect(rox.getCSS()).toContain(`[class~="object-cover"] { object-fit:cover }`);
+  expect(rox`object-scale-down`).toBe("object-scale-down");
+  expect(rox.getCSS()).toContain(`[class~="object-scale-down"] { object-fit:scale-down }`);
+
+  expect(rox`isolation-auto`).toBe("isolation-auto");
+  expect(rox.getCSS()).toContain(`[class~="isolation-auto"] { isolation:auto }`);
+});

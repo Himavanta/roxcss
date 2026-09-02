@@ -81,6 +81,35 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     around: () => "justify-content:space-around",
     start: () => "justify-content:flex-start",
     end: () => "justify-content:flex-end",
+    // justify-self（justify 前缀继续表 justify-content）
+    self: {
+      auto: () => "justify-self:auto",
+      start: () => "justify-self:flex-start",
+      end: () => "justify-self:flex-end",
+      center: () => "justify-self:center",
+      stretch: () => "justify-self:stretch",
+    },
+  },
+  // align-self
+  self: {
+    auto: () => "align-self:auto",
+    start: () => "align-self:flex-start",
+    end: () => "align-self:flex-end",
+    center: () => "align-self:center",
+    stretch: () => "align-self:stretch",
+    baseline: () => "align-self:baseline",
+  },
+  // align-content（grid/flex 多行）
+  content: {
+    center: () => "align-content:center",
+    start: () => "align-content:flex-start",
+    end: () => "align-content:flex-end",
+    between: () => "align-content:space-between",
+    around: () => "align-content:space-around",
+    evenly: () => "align-content:space-evenly",
+    baseline: () => "align-content:baseline",
+    stretch: () => "align-content:stretch",
+    normal: () => "align-content:normal",
   },
   place: {
     content: ([v]) => `place-content:${v}`,
@@ -89,7 +118,10 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   grid: {
     "": () => "display:grid",
     cols: ([v]) => `grid-template-columns:repeat(${v},minmax(0,1fr))`,
+    rows: ([v]) => `grid-template-rows:repeat(${v},minmax(0,1fr))`,
   },
+  col: { span: ([v]) => `grid-column:span ${v} / span ${v}` },
+  row: { span: ([v]) => `grid-row:span ${v} / span ${v}` },
 
   // 间距（多段值按顺序拼为简写）
   p: (vs) => `padding:${space(vs)}`,
@@ -106,9 +138,14 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   mr: (vs) => `margin-right:${space(vs)}`,
   mb: (vs) => `margin-bottom:${space(vs)}`,
   ml: (vs) => `margin-left:${space(vs)}`,
-  gap: ([v]) => `gap:${v}`,
+  gap: {
+    "": ([v]) => `gap:${v}`,
+    x: ([v]) => `column-gap:${v}`,
+    y: ([v]) => `row-gap:${v}`,
+  },
 
   // 尺寸
+  aspect: ([v]) => `aspect-ratio:${v}`,
   size: ([v]) => `width:${v};height:${v}`,
   w: ([v]) => `width:${v}`,
   h: ([v]) => `height:${v}`,
@@ -129,6 +166,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     center: () => "text-align:center",
     left: () => "text-align:left",
     right: () => "text-align:right",
+    justify: () => "text-align:justify",
     // text-wrap / text-overflow 家族
     nowrap: () => "text-wrap:nowrap",
     balance: () => "text-wrap:balance",
@@ -170,6 +208,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   // 盒模型与效果
   box: {
     border: () => "box-sizing:border-box",
+    content: () => "box-sizing:content-box",
   },
   shadow: ([v]) => `box-shadow:${v}`,
   opacity: ([v]) => `opacity:${v}`,
@@ -183,6 +222,17 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     y: ([v]) => `overflow-y:${v}`,
   },
   transition: ([v]) => `transition:${v}`,
+  duration: ([v]) => `transition-duration:${v}`,
+  delay: ([v]) => `transition-delay:${v}`,
+  ease: {
+    "": ([v]) => `transition-timing-function:${v}`,
+    linear: () => "transition-timing-function:linear",
+    in: {
+      "": () => "transition-timing-function:ease-in",
+      out: () => "transition-timing-function:ease-in-out",
+    },
+    out: () => "transition-timing-function:ease-out",
+  },
   transform: ([v]) => `transform:${v}`,
   animate: ([v]) => `animation:${v}`,
   cursor: ([v]) => `cursor:${v}`,
@@ -224,6 +274,19 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     },
     break: { spaces: () => "white-space:break-spaces" },
   },
+  // 断行与换行溢出（word-break / overflow-wrap）
+  break: {
+    all: () => "word-break:break-all",
+    keep: () => "word-break:keep-all",
+    normal: () => "overflow-wrap:normal;word-break:normal",
+  },
+  wrap: {
+    normal: () => "overflow-wrap:normal",
+    anywhere: () => "overflow-wrap:anywhere",
+    break: { word: () => "overflow-wrap:break-word" },
+  },
+  leading: ([v]) => `line-height:${v}`,
+  tracking: ([v]) => `letter-spacing:${v}`,
   truncate: () => "overflow:hidden;text-overflow:ellipsis;white-space:nowrap",
   align: {
     "": ([v]) => `vertical-align:${v}`,
@@ -263,9 +326,20 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     none: () => "list-style:none",
     inside: () => "list-style-position:inside",
     outside: () => "list-style-position:outside",
+    disc: () => "list-style-type:disc",
+    circle: () => "list-style-type:circle",
+    square: () => "list-style-type:square",
+    decimal: () => "list-style-type:decimal",
+  },
+
+  // object-fit（object-position 待 P3）
+  object: {
+    "": ([v]) => `object-fit:${v}`,
+    scale: { down: () => "object-fit:scale-down" },
   },
 
   // 无障碍与隔离
+  isolation: { auto: () => "isolation:auto" },
   sr: {
     only: () =>
       "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border-width:0",
