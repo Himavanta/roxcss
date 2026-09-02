@@ -105,6 +105,27 @@ The URL above serves the latest published version from unpkg; pin an exact versi
 
 上面的 URL 由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/dist/index.min.js`。
 
+**Two builds / 两个构建：**
+
+The full build above bundles the default preset (`rox`, `createConfig`, `createModifiers`, …). When you bring your own matchers, a lighter core build ships only the engine — `createRox` plus the DOM injection — at about 2 kB minified:
+
+上面是全量构建，内置默认预设（`rox`、`createConfig`、`createModifiers` 等）。自带 matcher 时可用更轻的核心构建——只含引擎 `createRox` 与 DOM 注入，压缩后约 2 kB：
+
+```html
+<script type="module">
+  import { createRox } from "https://unpkg.com/roxcss/dist/core.min.js";
+
+  // build your own matchers, no default preset / 自建 matcher，无默认预设
+  const rox = createRox({
+    matchers: {
+      p: (v) => `padding:${v}`,
+      bg: (v) => `background:${v}`,
+    },
+  });
+  document.body.className = rox`p-24px bg-blue`;
+</script>
+```
+
 ## How It Works / 工作方式
 
 A token is split by `-` into segments, and the segments walk a nested **matcher tree** with two kinds of nodes — functions and objects:

@@ -6,6 +6,7 @@ import {
   type RoxOptions,
 } from "./types.ts";
 import { flushStyles } from "./dom.ts";
+import { isPlainObject } from "./shared.ts";
 
 function warn(message: string) {
   if (globalThis.process?.env?.NODE_ENV === "development") {
@@ -15,10 +16,6 @@ function warn(message: string) {
 
 /** 类型守卫：是否为函数节点 */
 const isFn = (v: unknown): v is MatcherFunction => typeof v === "function";
-
-/** 普通对象判断（容器）：仅 constructor === Object 才是可遍历/可递归的子树；函数/数组/类实例一律不算 */
-export const isPlainObject = (v: unknown): v is Record<string, unknown> =>
-  !!v && (v as object).constructor === Object;
 
 /** 可继续解析的节点：函数或普通对象；其他值（null=删除键、类实例等）一律视为不存在 */
 const isNode = (v: unknown): v is MatcherNode => isFn(v) || isPlainObject(v);

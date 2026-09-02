@@ -1,5 +1,5 @@
 import type { MatcherNode, Modifier, Preset, PresetOverrides } from "./types.ts";
-import { isPlainObject } from "./core.ts";
+import { isPlainObject } from "./shared.ts";
 
 /** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
 const space = (vs: string[]) => vs.join(" ");

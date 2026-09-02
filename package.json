@@ -29,6 +29,7 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
+    "./core.min": "./dist/core.min.js",
     "./index.min": "./dist/index.min.js",
     "./package.json": "./package.json"
   },
