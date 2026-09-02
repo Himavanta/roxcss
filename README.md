@@ -13,6 +13,8 @@ RoxCSS 是一个运行时原子 CSS 引擎。它是一个模板字符串标签�
 - **Tailwind-aligned default preset.** The built-in preset follows Tailwind v4 naming (`flex-col`, `rounded`, `grid-cols-3`, `hover:bg-...`), while the value system stays roxcss-native (see [Default Preset / 默认预设](#default-preset--默认预设)).
 - **Sync by design.** When the `rox` call returns, the rules are already in effect.
 
+---
+
 - **零构建、零配置**：规则在运行时生成并注入，无需任何预编译。
 - **框架无关**：任何模板标签可用的地方都能用——原生 HTML、Vue、React、Svelte，甚至裸 `document.querySelector`。
 - **类名透传**：你写下的 token 就是 DOM 中的类名，DevTools 里看到的就是你输入的原文，没有哈希类名。
@@ -94,9 +96,9 @@ token 按 `-` 拆成段，段在嵌套的 **matcher 树**中逐段查找。节�
 
 **Function node / 函数节点：**
 
-A function swallows all remaining segments and is called with one argument per segment. `p: (v) => \`padding:${v}\``turns`p-24px`into`padding:24px`.
+A function swallows all remaining segments and is called with one argument per segment. `` `p: (v) => `padding:${v}`` `` turns `p-24px` into `padding:24px`.
 
-函数节点吞掉所有剩余段，剩余段每段一个参数传入调用。`p: (v) => \`padding:${v}\``把`p-24px`变成`padding:24px`。
+函数节点吞掉所有剩余段，剩余段每段一个参数传入调用。`` `p: (v) => `padding:${v}`` `` 把 `p-24px` 变成 `padding:24px`。
 
 **Object node / 对象节点：**
 
