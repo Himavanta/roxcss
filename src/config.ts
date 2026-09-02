@@ -31,12 +31,17 @@ export function createModifiers(
 const createBaseMatchers = (): Record<string, MatcherNode> => ({
   // display
   block: () => "display:block",
+  contents: () => "display:contents",
   hidden: () => "display:none",
   inline: {
     "": () => "display:inline",
     block: () => "display:inline-block",
     flex: () => "display:inline-flex",
   },
+
+  // visibility
+  visible: () => "visibility:visible",
+  invisible: () => "visibility:hidden",
 
   // flex / grid
   flex: {
@@ -112,6 +117,12 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     center: () => "text-align:center",
     left: () => "text-align:left",
     right: () => "text-align:right",
+    // text-wrap / text-overflow 家族
+    nowrap: () => "text-wrap:nowrap",
+    balance: () => "text-wrap:balance",
+    pretty: () => "text-wrap:pretty",
+    ellipsis: () => "text-overflow:ellipsis",
+    clip: () => "text-overflow:clip",
   },
 
   // 边框（简写与方向子项统一支持多段值）
@@ -129,6 +140,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   radius: ([v]) => `border-radius:${v}`,
 
   // 位置与层级
+  static: () => "position:static",
   relative: () => "position:relative",
   absolute: () => "position:absolute",
   fixed: () => "position:fixed",
@@ -153,14 +165,66 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     hidden: () => "overflow:hidden",
     scroll: () => "overflow:scroll",
     auto: () => "overflow:auto",
+    visible: () => "overflow:visible",
+    clip: () => "overflow:clip",
     x: () => "overflow-x:auto",
     y: () => "overflow-y:auto",
   },
   transition: ([v]) => `transition:${v}`,
   transform: ([v]) => `transform:${v}`,
+  animate: ([v]) => `animation:${v}`,
   cursor: ([v]) => `cursor:${v}`,
 
+  // 交互与表单
+  pointer: {
+    events: {
+      none: () => "pointer-events:none",
+      auto: () => "pointer-events:auto",
+    },
+  },
+  select: {
+    none: () => "-webkit-user-select:none;user-select:none",
+    text: () => "-webkit-user-select:text;user-select:text",
+    all: () => "-webkit-user-select:all;user-select:all",
+    auto: () => "-webkit-user-select:auto;user-select:auto",
+  },
+  appearance: ([v]) => `appearance:${v}`,
+  resize: {
+    "": () => "resize:both",
+    none: () => "resize:none",
+    x: () => "resize:horizontal",
+    y: () => "resize:vertical",
+  },
+
+  // 滚动
+  scroll: {
+    auto: () => "scroll-behavior:auto",
+    smooth: () => "scroll-behavior:smooth",
+  },
+
+  // 文本排版
+  whitespace: {
+    "": ([v]) => `white-space:${v}`,
+    pre: {
+      "": () => "white-space:pre",
+      wrap: () => "white-space:pre-wrap",
+      line: () => "white-space:pre-line",
+    },
+    break: { spaces: () => "white-space:break-spaces" },
+  },
+  truncate: () => "overflow:hidden;text-overflow:ellipsis;white-space:nowrap",
+  align: {
+    "": ([v]) => `vertical-align:${v}`,
+    text: {
+      top: () => "vertical-align:text-top",
+      bottom: () => "vertical-align:text-bottom",
+    },
+  },
+
   // 文本装饰
+  underline: () => "text-decoration-line:underline",
+  overline: () => "text-decoration-line:overline",
+  line: { through: () => "text-decoration-line:line-through" },
   bold: () => "font-weight:700",
   italic: () => "font-style:italic",
   uppercase: () => "text-transform:uppercase",
@@ -173,7 +237,22 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   },
   list: {
     none: () => "list-style:none",
+    inside: () => "list-style-position:inside",
+    outside: () => "list-style-position:outside",
   },
+
+  // 无障碍与隔离
+  sr: {
+    only: () =>
+      "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border-width:0",
+  },
+  not: {
+    sr: {
+      only: () =>
+        "position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip-path:none;white-space:normal",
+    },
+  },
+  isolate: () => "isolation:isolate",
 });
 
 /**
