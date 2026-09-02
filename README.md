@@ -22,17 +22,13 @@ RoxCSS 是一个运行时原子 CSS 引擎。它是一个模板字符串标签�
 
 ## Quick Start / 快速开始
 
-Install the package:
+Install the package, then import the default instance and use it as a template tag. The tokens you write are returned unchanged, and the matching rules are injected into a `<style data-roxcss>` element in `<head>` — the effect is shown in the comments below:
 
-安装依赖：
+安装依赖后导入默认实例 `rox`，并把它作为模板标签使用。你写下的 token 会原样返回，匹配的规则注入到 `<head>` 中的 `<style data-roxcss>` 元素——效果见下面代码注释：
 
 ```bash
 npm install roxcss
 ```
-
-Create an instance from the default preset and use it as a template tag:
-
-基于默认预设创建实例，并作为模板标签使用：
 
 ```ts
 import { rox } from "roxcss";
@@ -48,13 +44,13 @@ document.body.className = className;
 //   [class~="hover:bg-blue"]:hover { background:blue }
 ```
 
-The tag function is sync: when the call returns, the rules are live. Repeated calls with the same tokens are cached and never touch the DOM again.
+The tag function is sync: when the call returns, the rules are live. Repeated calls with the same tokens hit the cache and never touch the style layer again — steady-state rendering costs nothing beyond the returned string.
 
-标签函数是同步的：调用返回时规则已生效。相同 token 的重复调用命中缓存，不再触碰 DOM。
+标签函数是同步的：调用返回时规则已生效。相同 token 的重复调用命中缓存，之后不再触碰样式层——稳定态渲染除了返回字符串外零开销。
 
-`rox` is the out-of-the-box instance built on the default preset. To start from an empty matcher tree, use `createRox`:
+`rox` is the out-of-the-box instance built on the default preset. When you need a preset-free setup — a design system with its own vocabulary, a framework-specific shim, or an experiment — build your own matcher tree with `createRox`. The minimal instance below registers two spacing utilities and one layout utility, plus an `md` breakpoint modifier:
 
-`rox` 是基于默认预设的开箱即用实例。如果想从空的 matcher 树开始，用 `createRox`：
+`rox` 是基于默认预设的开箱即用实例。当需要脱离预设——自有词汇的设计系统、框架专用垫片或临时实验——用 `createRox` 自建 matcher 树。下面的最小实例注册了两个间距工具、一个布局工具，以及 `md` 断点修饰符：
 
 ```ts
 import { createRox } from "roxcss";
@@ -134,21 +130,17 @@ Each token is resolved exactly once per instance. Injected and failed tokens are
 
 ### `createRox(options)`
 
-Creates a new instance with a fresh internal state (matcher tree reference, injection caches, rule memory). Every instance is fully independent.
+`createRox` creates a fully independent instance with its own matcher tree, injection caches (`injected` / `failed`), and rule memory. Multiple instances can coexist without sharing any state. Pair it with `createConfig` for a preset-based instance, or pass a hand-written tree for a preset-free one:
 
-创建全新实例（独立持有 matcher 树引用、注入缓存与规则内存）。每个实例完全独立。
+`createRox` 创建完全独立的实例——各自的 matcher 树、注入缓存（`injected` / `failed`）与规则内存。多个实例可并存，互不共享状态。配合 `createConfig` 得到基于预设的实例；传入手写 matcher 树则脱离预设：
 
-- **`options`**
-
-  The configuration object / 配置对象。
-
-- **`options.matchers`**
+- **`matchers`**
 
   `Record<string, MatcherNode>` — the matcher tree. Keys are segment roots, values are functions or nested objects (see [How It Works / 工作方式](#how-it-works--工作方式)).
 
   matcher 树。键是段根，值是函数或嵌套对象（见 [How It Works / 工作方式](#how-it-works--工作方式)）。
 
-- **`options.modifiers`** (optional / 可选)
+- **`modifiers`** (optional / 可选)
 
   `Record<string, Modifier>` — environment modifier registry, keyed by prefix name. Defaults to an empty registry, in which case every prefix is treated as a pseudo-class.
 
@@ -325,45 +317,45 @@ The default preset aligns its naming with **Tailwind v4** — same utility names
 
 默认预设的命名对齐 **Tailwind v4**——相同的工具类名、相同的嵌套逻辑，知识可直接迁移。两处刻意的差异：
 
-1. **Values are passed through as-is.** Tailwind translates `p-4` into `1rem` via its numeric scale; roxcss does not interpret numbers. Write the full value: `p-4px`, `w-170px`, `gap-16px`, `aspect-16/9`. Pure numbers produce invalid CSS — a caller error.
+**Values are passed through as-is / 值原样透传：**
 
-   **值原样透传**。Tailwind 通过数值刻度把 `p-4` 翻译成 `1rem`；roxcss 不解释数字。单位写全：`p-4px`、`w-170px`、`gap-16px`、`aspect-16/9`。纯数字会生成无效 CSS，属调用方错误。
+Tailwind translates `p-4` into `1rem` via its numeric scale; roxcss does not interpret numbers. Write the full value: `p-4px`, `w-170px`, `gap-16px`, `aspect-16/9`. Pure numbers produce invalid CSS — a caller error.
 
-2. **`text` is font-size, `color` is a separate root.** Tailwind overloads `text-*` for color; roxcss keeps them apart: `text-16px` → font-size, `color-accent` → color.
+Tailwind 通过数值刻度把 `p-4` 翻译成 `1rem`；roxcss 不解释数字。单位写全：`p-4px`、`w-170px`、`gap-16px`、`aspect-16/9`。纯数字会生成无效 CSS，属调用方错误。
 
-   **`text` 管字号、`color` 是独立根**。Tailwind 用 `text-*` 兼任颜色；roxcss 分开处理：`text-16px` → 字号，`color-accent` → 颜色。
+**`text` is font-size, `color` is a separate root / `text` 管字号，`color` 是独立根：**
 
-Selected utilities (a complete listing lives in `docs/预设设计.md`):
+Tailwind overloads `text-*` for color; roxcss keeps them apart: `text-16px` → font-size, `color-accent` → color.
 
-常用工具类节选（完整清单见 `docs/预设设计.md`）：
+Tailwind 用 `text-*` 兼任颜色；roxcss 分开处理：`text-16px` → 字号，`color-accent` → 颜色。
 
-| Class / 类名                              | Declaration / 声明                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------- |
-| `flex` / `flex-col` / `flex-row`          | `display:flex` / column / row / 块级弹性盒，纵/横向排列                               |
-| `flex-1` / `grow`                         | `flex:1` / `flex-grow:1` / 填满剩余空间 / 单项伸长                                    |
-| `items-center` / `justify-between`        | `align-items:center` / `justify-content:space-between` / 交叉轴居中 / 主轴两端        |
-| `self-*` / `content-*`                    | align-self / align-content / 自身对齐 / 多行分布                                      |
-| `gap-16px` / `gap-x-8px` / `gap-y-8px`    | gap / column-gap / row-gap / 间距 / 列间距 / 行间距                                   |
-| `grid` / `grid-cols-3` / `grid-rows-2`    | display:grid / repeat(3,minmax(0,1fr)) / 网格容器 / 3 列 / 2 行                       |
-| `col-span-2` / `row-span-2`               | `grid-column:span 2 / span 2` / 跨 2 列 / 跨 2 行                                     |
-| `p-24px` / `px-16px` / `pt-8px`           | padding / padding-inline / padding-top / 四周 / 水平 / 顶部（margin 同理，`m-` 前缀） |
-| `w-170px` / `h-28px` / `size-10px`        | width / height / 两者同设 / 宽 / 高 / 宽高同设                                        |
-| `max-w-*` / `min-w-*`                     | max-width / min-width / 最大 / 最小宽度                                               |
-| `inset-x-0` / `top-0` / `right-0`         | inset / top / right / bottom / left / 定位偏移                                        |
-| `z-10` / `relative` / `absolute`          | z-index / position / 层级与定位                                                       |
-| `text-16px` / `text-center`               | font-size / text-align / 字号 / 对齐（`text` 根 = 字号）                              |
-| `font-bold` / `font-sans` / `font-mono`   | font-weight:700 / font-family / 字重与字体族                                          |
-| `leading-*` / `tracking-*`                | line-height / letter-spacing / 行高 / 字距                                            |
-| `rounded-8px` / `border-2px-solid-red`    | border-radius / border / 圆角 / 边框简写（`border-t`/`x`/`color`…）                   |
-| `bg-blue` / `color-red`                   | background / color / 背景与文字颜色（值透传）                                         |
-| `shadow` / `opacity-0.8`                  | box-shadow / opacity / 阴影 / 透明度（数值原样，写 `0.8` 或 `80%`）                   |
-| `transition-*` / `duration-*` / `delay-*` | transition / duration / delay / 过渡、时长与延迟（值透传）                            |
-| `overflow-hidden` / `overflow-x-auto`     | overflow / overflow-x / 溢出隐藏 / 横向滚动                                           |
-| `underline` / `line-through` / `truncate` | text-decoration / 下划线 / 删除线 / 单行截断省略                                      |
-| `whitespace-nowrap` / `break-all`         | white-space / word-break / 空白处理 / 强制断行                                        |
-| `hidden` / `block` / `inline-flex`        | display / 显示模式家族                                                                |
-| `list-none` / `list-disc`                 | list-style / 列表样式                                                                 |
-| `sr-only` / `isolate` / `aspect-16/9`     | 屏幕阅读器专用 / 隔离上下文 / 宽高比                                                  |
+The preset covers layout, spacing, sizing, typography, borders, effects, and more. Class names below show how values map into declarations — because values pass through, the token value appears verbatim in the CSS. This is a selection; the full listing lives in `docs/预设设计.md`.
+
+默认预设覆盖布局、间距、尺寸、排版、边框、效果等。下表展示类名如何映射为声明——由于值透传，类名中的值会原样出现在 CSS 中。此为节选，完整清单见 `docs/预设设计.md`。
+
+| Class / 类名                           | Declaration / 声明                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `flex` / `flex-col` / `flex-row`       | `display:flex` / `flex-direction:column` / `flex-direction:row`         |
+| `flex-1` / `grow`                      | `flex:1` / `flex-grow:1`                                                |
+| `items-center` / `justify-between`     | `align-items:center` / `justify-content:space-between`                  |
+| `gap-16px` / `gap-x-8px`               | `gap:16px` / `column-gap:8px`                                           |
+| `grid` / `grid-cols-3`                 | `display:grid` / `grid-template-columns:repeat(3,minmax(0,1fr))`        |
+| `col-span-2`                           | `grid-column:span 2 / span 2`                                           |
+| `p-24px` / `pt-8px`                    | `padding:24px` / `padding-top:8px`（`m-` / `mx-` / `mt-`… 同构）        |
+| `w-170px` / `h-28px`                   | `width:170px` / `height:28px`（`size-*` 宽高同设）                      |
+| `inset-x-0` / `top-0`                  | `inset-inline:0` / `top:0`                                              |
+| `z-10` / `relative` / `absolute`       | `z-index:10` / `position:relative` / `position:absolute`                |
+| `text-16px` / `text-center`            | `font-size:16px` / `text-align:center`                                  |
+| `font-bold` / `leading-16px`           | `font-weight:700` / `line-height:16px`                                  |
+| `rounded-5px` / `border-2px-solid-red` | `border-radius:5px` / `border:2px solid red`                            |
+| `bg-blue` / `color-red`                | `background:blue` / `color:red`                                         |
+| `duration-150ms` / `delay-75ms`        | `transition-duration:150ms` / `transition-delay:75ms`                   |
+| `overflow-hidden` / `overflow-x-auto`  | `overflow:hidden` / `overflow-x:auto`                                   |
+| `underline` / `truncate`               | `text-decoration-line:underline` / 单行截断三合一（`text-overflow` 等） |
+| `whitespace-nowrap` / `break-all`      | `white-space:nowrap` / `word-break:break-all`                           |
+| `hidden` / `inline-flex`               | `display:none` / `inline-flex`                                          |
+| `list-none` / `list-disc`              | `list-style:none` / `list-style-type:disc`                              |
+| `isolate` / `aspect-16/9`              | `isolation:isolate` / `aspect-ratio:16/9`                               |
 
 Breakpoints come from `createModifiers()` with `defaultBreakpoints`, all `min-width` media queries. Prefix a token with a breakpoint and it applies from that width up:
 
@@ -375,9 +367,9 @@ Breakpoints come from `createModifiers()` with `defaultBreakpoints`, all `min-wi
 
 ## Framework Usage / 框架用法
 
-Because class names are returned as plain strings, any binding works. A Vue example:
+Because class names are returned as plain strings, any class binding works. The string can be produced anywhere — a computed property, an inline handler, or a plain function — and handed to a framework's binding. A Vue example:
 
-类名以普通字符串返回，任何绑定方式都适用。Vue 示例：
+类名以普通字符串返回，因此任何 class 绑定方式都适用。字符串可以在任何位置生成——computed、事件处理器或普通函数——再交给框架的绑定。Vue 示例：
 
 ```vue
 <script setup lang="ts">
@@ -397,10 +389,6 @@ import { rox } from "./rox"; // your configured instance / 你配置好的实例
 </template>
 ```
 
-The same class-name string can be produced anywhere — inside a computed property, an inline handler, or a plain function — and handed to a framework's class binding.
-
-同样的类名字符串可以在任何位置生成——computed、事件处理器或普通函数——然后交给框架的 class 绑定。
-
 ## Performance & Injection / 性能与注入
 
 - **Per-token resolution happens once.** Two `Set`s (`injected` / `failed`) deduplicate tokens for the life of an instance. Repeated renders never touch the style layer.
@@ -409,7 +397,7 @@ The same class-name string can be produced anywhere — inside a computed proper
 - **SSR safe.** With no DOM, rules are kept in memory and readable via `getCSS()`.
 
 - **每个 token 只解析一次**：两个 `Set`（`injected` / `failed`）在实例生命周期内去重，重复渲染不触碰样式层。
-- **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)，详见文档）。
+- **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)）。
 - **滚动 style 桶**：活动 `<style data-roxcss>` 元素复用到 1000 条规则后冻结，新建下一个。桶数保持在 ceil(规则数 / 1000)——DevTools 面板不堆积。
 - **SSR 安全**：无 DOM 时规则保存在内存，经 `getCSS()` 读取。
 
@@ -423,10 +411,15 @@ The design docs are written in Chinese and archived under `docs/`:
 
 设计文档以中文撰写，归档在 `docs/`：
 
-| Doc / 文档                                        | Content / 内容                                                                          |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| [设计方案.md](./docs/设计方案.md)                 | Engine architecture, token parsing, matcher lookup / 引擎架构、token 解析、matcher 查找 |
-| [预设设计.md](./docs/预设设计.md)                 | Default preset design and full utility listing / 默认预设设计与完整工具类清单           |
-| [样式表管理策略.md](./docs/样式表管理策略.md)     | Rolling `<style>` bucket injection design / style 滚动桶注入设计                        |
-| [性能分析.md](./docs/性能分析.md)                 | Performance model and measurements / 性能模型与实测                                     |
-| [tailwind对齐计划.md](./docs/tailwind对齐计划.md) | Tailwind v4 alignment decisions and gaps / Tailwind v4 对齐决策与差距                   |
+| Doc / 文档                                        | Content / 内容                                      |
+| ------------------------------------------------- | --------------------------------------------------- |
+| [设计方案.md](./docs/设计方案.md)                 | Engine architecture, token parsing, matcher lookup. |
+|                                                   | 引擎架构、token 解析、matcher 查找。                |
+| [预设设计.md](./docs/预设设计.md)                 | Default preset design and full utility listing.     |
+|                                                   | 默认预设设计与完整工具类清单。                      |
+| [样式表管理策略.md](./docs/样式表管理策略.md)     | Rolling `<style>` bucket injection design.          |
+|                                                   | style 滚动桶注入设计。                              |
+| [性能分析.md](./docs/性能分析.md)                 | Performance model and measurements.                 |
+|                                                   | 性能模型与实测。                                    |
+| [tailwind对齐计划.md](./docs/tailwind对齐计划.md) | Tailwind v4 alignment decisions and gaps.           |
+|                                                   | Tailwind v4 对齐决策与差距。                        |
