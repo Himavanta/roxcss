@@ -1,21 +1,25 @@
 import type { MatcherNode, Modifier, Preset } from "./types.ts";
 
-/** 将多个段以空格连接为简写值（如 p-5px-10px → "5px 10px"） */
 /** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
 const space = (vs: string[]) => vs.join(" ");
 
-/** 标准断点：sm/md/lg/xl（min-width 媒体查询） */
-const breakpoints: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280 };
+/** 默认断点：sm/md/lg/xl（min-width 媒体查询） */
+export const defaultBreakpoints = { sm: 640, md: 768, lg: 1024, xl: 1280 } as const;
 
-/** 每次调用返回全新的断点 modifiers */
-const createBaseModifiers = (): Record<string, Modifier> => {
+/**
+ * 生成断点 modifiers。传入的断点表完全决定输出（不隐式合并默认）；
+ * 需要"默认 + 自定义"时自行 spread 合并：createModifiers({ ...defaultBreakpoints, xxl: 1536 })
+ */
+export function createModifiers(
+  breakpoints: Record<string, number> = defaultBreakpoints,
+): Record<string, Modifier> {
   const result: Record<string, Modifier> = {};
   for (const [name, px] of Object.entries(breakpoints)) {
     result[name] = (_className, selector, cssDecl) =>
       `@media (min-width: ${px}px) { ${selector} { ${cssDecl} } }`;
   }
   return result;
-};
+}
 
 /**
  * 每次调用返回全新的 matchers 树（嵌套子对象也是新引用），
@@ -179,6 +183,6 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 export function createConfig(overrides?: Partial<Preset>): Preset {
   return {
     matchers: { ...createBaseMatchers(), ...overrides?.matchers },
-    modifiers: { ...createBaseModifiers(), ...overrides?.modifiers },
+    modifiers: { ...createModifiers(), ...overrides?.modifiers },
   };
 }

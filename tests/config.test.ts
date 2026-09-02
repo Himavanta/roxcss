@@ -1,5 +1,5 @@
 import { expect, test } from "vite-plus/test";
-import { createRox, createConfig } from "../src/index.ts";
+import { createRox, createConfig, createModifiers, defaultBreakpoints } from "../src/index.ts";
 
 const rox = createRox(createConfig());
 
@@ -61,4 +61,38 @@ test("默认配置：断点 modifiers（min-width）", () => {
   expect(rox.getCSS()).toContain(
     `@media (min-width: 1280px) { [class~="xl:flex"] { display:flex } }`,
   );
+});
+
+test("createModifiers 自定义断点完全决定输出", () => {
+  const a = createRox({
+    matchers: createConfig().matchers,
+    modifiers: createModifiers({ phone: 480, desktop: 1200 }),
+  });
+  expect(a`phone:p-4px`).toBe("phone:p-4px");
+  expect(a.getCSS()).toContain(
+    `@media (min-width: 480px) { [class~="phone:p-4px"] { padding:4px } }`,
+  );
+
+  expect(a`desktop:flex`).toBe("desktop:flex");
+  expect(a.getCSS()).toContain(
+    `@media (min-width: 1200px) { [class~="desktop:flex"] { display:flex } }`,
+  );
+
+  // 默认断点不被隐式带入：sm: 前缀不会生成 media 查询（按伪类处理）
+  expect(a`sm:flex`).toBe("sm:flex");
+  expect(a.getCSS()).not.toContain("@media (min-width: 640px)");
+});
+
+test("createModifiers 基于默认断点扩展", () => {
+  const a = createRox({
+    matchers: createConfig().matchers,
+    modifiers: createModifiers({ ...defaultBreakpoints, xxl: 1536 }),
+  });
+  expect(a`xxl:p-4px`).toBe("xxl:p-4px");
+  expect(a.getCSS()).toContain(
+    `@media (min-width: 1536px) { [class~="xxl:p-4px"] { padding:4px } }`,
+  );
+
+  expect(a`md:flex`).toBe("md:flex");
+  expect(a.getCSS()).toContain(`@media (min-width: 768px) { [class~="md:flex"] { display:flex } }`);
 });

@@ -1,7 +1,7 @@
 import { createRox } from "./core.ts";
 import { createConfig } from "./config.ts";
 
-export { createConfig } from "./config.ts";
+export { createConfig, createModifiers, defaultBreakpoints } from "./config.ts";
 export { createRox } from "./core.ts";
 export type {
   MatcherFunction,
