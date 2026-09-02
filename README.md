@@ -134,17 +134,13 @@ Each token is resolved exactly once per instance. Injected and failed tokens are
 
 `createRox` 创建完全独立的实例——各自的 matcher 树、注入缓存（`injected` / `failed`）与规则内存。多个实例可并存，互不共享状态。配合 `createConfig` 得到基于预设的实例；传入手写 matcher 树则脱离预设：
 
-- **`matchers`**
+- **`matchers`** `Record<string, MatcherNode>`
+  - the matcher tree. Keys are segment roots, values are functions or nested objects (see [How It Works / 工作方式](#how-it-works--工作方式)).
+  - matcher 树。键是段根，值是函数或嵌套对象（见 [How It Works / 工作方式](#how-it-works--工作方式)）。
 
-  `Record<string, MatcherNode>` — the matcher tree. Keys are segment roots, values are functions or nested objects (see [How It Works / 工作方式](#how-it-works--工作方式)).
-
-  matcher 树。键是段根，值是函数或嵌套对象（见 [How It Works / 工作方式](#how-it-works--工作方式)）。
-
-- **`modifiers`** (optional / 可选)
-
-  `Record<string, Modifier>` — environment modifier registry, keyed by prefix name. Defaults to an empty registry, in which case every prefix is treated as a pseudo-class.
-
-  环境修饰符注册表，以前缀名为键。默认空注册表，此时所有前缀都按伪类处理。
+- **`modifiers`** `Record<string, Modifier>` (optional / 可选)
+  - environment modifier registry, keyed by prefix name. Defaults to an empty registry, in which case every prefix is treated as a pseudo-class.
+  - 环境修饰符注册表，以前缀名为键。默认空注册表，此时所有前缀都按伪类处理。
 
 ### `RoxInstance`
 
@@ -160,16 +156,12 @@ interface RoxInstance {
 ```
 
 - **`(strings, ...values)`**
-
-  Tag invocation. Splits the interpolated string on whitespace, resolves each token, and joins the results with a space — the class name string you can put on an element. Rules are flushed synchronously when the call returns.
-
-  标签调用。按空白拆分插值后的字符串，逐个解析 token，用空格连接结果——即可以直接放到元素上的类名字符串。调用返回时规则同步写入。
+  - tag invocation: splits the interpolated string on whitespace, resolves each token, and joins the results with a space — the class-name string you can put on an element. Rules are flushed synchronously when the call returns.
+  - 标签调用：按空白拆分插值后的字符串，逐个解析 token，用空格连接结果——即可直接放到元素上的类名字符串。调用返回时规则同步写入。
 
 - **`getCSS()`**
-
-  Returns every rule the instance has injected so far, joined with newlines. Useful for SSR style collection and debugging. Works even without a DOM.
-
-  返回实例迄今注入的全部规则，换行连接。适用于 SSR 样式收集与调试。无 DOM 时同样可用。
+  - returns every rule the instance has injected so far, joined with newlines. Useful for SSR style collection and debugging; works even without a DOM.
+  - 返回实例迄今注入的全部规则，换行连接。适用于 SSR 样式收集与调试，无 DOM 时同样可用。
 
 ### `createConfig(overrides?)`
 
@@ -177,11 +169,9 @@ Creates the default preset — a fresh matcher tree (90+ top-level roots) plus f
 
 创建默认预设——全新的 matcher 树（90+ 顶层根）与全新的断点 modifiers。每次调用整树重建，共享同一 config 的实例之间零引用共享。
 
-- **`overrides`** (optional / 可选)
-
-  `PresetOverrides` — recursive overrides merged on top of the defaults (see [Customization / 自定义](#customization--自定义)).
-
-  递归覆盖参数，合并到默认配置之上（见 [Customization / 自定义](#customization--自定义)）。
+- **`overrides`** `PresetOverrides` (optional / 可选)
+  - recursive overrides merged on top of the defaults (see [Customization / 自定义](#customization--自定义)).
+  - 递归覆盖参数，合并到默认配置之上（见 [Customization / 自定义](#customization--自定义)）。
 
 ### `createModifiers(breakpoints?)`
 
