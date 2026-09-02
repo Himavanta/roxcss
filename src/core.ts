@@ -5,7 +5,7 @@ import {
   type RoxInstance,
   type RoxOptions,
 } from "./types.ts";
-import { adoptStyles } from "./dom.ts";
+import { flushStyles } from "./dom.ts";
 
 function warn(message: string) {
   if (globalThis.process?.env?.NODE_ENV === "development") {
@@ -160,7 +160,7 @@ export function createRox(options: RoxOptions): RoxInstance {
     modifiers: options.modifiers ?? {},
     injected: new Set<string>(),
     failed: new Set<string>(),
-    // 内存记录全部规则：浏览器中同步写入 adoptedStyleSheets，无 DOM 时供 getCSS() 读取（测试/SSR）
+    // 内存记录全部规则：浏览器中同步写入滚动 <style> 桶，无 DOM 时供 getCSS() 读取（测试/SSR）
     rules: [],
   };
 
@@ -173,7 +173,7 @@ export function createRox(options: RoxOptions): RoxInstance {
     const result = tokens.map((token) => resolveToken(ctx, token, batch)).join(" ");
 
     if (batch.length) {
-      adoptStyles(batch.join("\n"));
+      flushStyles(batch);
     }
     return result;
   }
