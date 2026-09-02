@@ -96,40 +96,47 @@ token 按 `-` 拆成段，段在嵌套的 **matcher 树**中逐段查找。节�
 
 **Function node / 函数节点：**
 
-A function swallows all remaining segments and is called with one argument per segment. `` `p: (v) => `padding:${v}`` `` turns `p-24px` into `padding:24px`.
+A function swallows the remaining segments and is called with one argument per segment. It returns the declaration text — or `null` to mark failure.
 
-函数节点吞掉所有剩余段，剩余段每段一个参数传入调用。`` `p: (v) => `padding:${v}`` `` 把 `p-24px` 变成 `padding:24px`。
+函数吞掉剩余所有段，剩余段每段一个参数调用，返回声明文本——返回 `null` 表示失败。
+
+```ts
+// matcher definition (a function node) / matcher 定义（函数节点）
+p: (v) => `padding:${v}`;
+
+// token flow / token 解析流程
+//   p-24px
+//     → segments ["p", "24px"]
+//     → "p" is a function, swallows the rest → p("24px")
+//     → padding:24px
+```
 
 **Object node / 对象节点：**
 
-An object is a container that remaining segments descend through as keys; the `""` key holds the fallback. In `{ flex: { "": () => "display:flex", col: () => ... } }`, the token `flex-col` descends `flex` → `col`, while the bare `flex` falls back to `""`.
+An object is a container that remaining segments descend through as keys. The `""` key is the fallback — used when the segments run out or no key matches.
 
-对象节点是容器，剩余段作为键逐层下行；`""` 键保存兜底。对于 `{ flex: { "": () => "display:flex", col: () => ... } }`，token `flex-col` 沿 `flex` → `col` 下行，单独的 `flex` 落入 `""` 兜底。
+对象是容器，剩余段作为键逐层下行。`""` 键是兜底——段耗尽或无键匹配时使用。
+
+```ts
+// matcher definition (an object node) / matcher 定义（对象节点）
+flex: {
+  "": () => "display:flex",
+  col: () => "display:flex;flex-direction:column",
+}
+
+// token flow / token 解析流程
+//   flex-col
+//     → segments ["flex", "col"]
+//     → "flex" is an object, descend by key "col" → flex.col()
+//     → display:flex;flex-direction:column
+//   flex
+//     → segments ["flex"], segments run out, object has "" → flex[""]()
+//     → display:flex
+```
 
 Match resolution, in order: exact key → `""` fallback → failure. On failure the token is returned unchanged and no rule is injected. A function returning `null` also means failure.
 
 匹配解析顺序：精确键 → `""` 兜底 → 失败。失败时 token 原样返回且不注入规则。函数返回 `null` 同样视为失败。
-
-```ts
-// matcher tree / matcher 树
-{
-  flex: {
-    "": () => "display:flex",                          // matches flex (fallback)
-    col: () => "display:flex;flex-direction:column",   // matches flex-col
-    space: {
-      "": (v) => `justify-content:space-${v}`,         // matches flex-space-* (fallback)
-      between: () => "justify-content:space-between",  // matches flex-space-between
-    },
-  },
-  rounded: (v) => `border-radius:${v}`,                // matches rounded-*
-}
-
-// token resolution / token 解析
-// flex               → flex[""]()           → display:flex
-// flex-col           → flex.col()           → flex-direction:column
-// flex-space-between → flex.space.between() → justify-content:space-between
-// rounded-8px        → rounded("8px")       → border-radius:8px
-```
 
 ### Prefixes: pseudo-classes and environment modifiers / 前缀：伪类与环境修饰符
 
