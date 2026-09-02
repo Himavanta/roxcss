@@ -94,16 +94,16 @@ The package is pure ESM with zero dependencies, so the minified build can be imp
 
 ```html
 <script type="module">
-  import { rox } from "https://unpkg.com/roxcss/dist/index.min.js";
+  import { rox } from "https://unpkg.com/roxcss/index.min";
 
   // class names are returned unchanged, rules are injected / 类名原样返回并注入规则
   document.body.className = rox`flex flex-col gap-16px p-24px hover:bg-blue`;
 </script>
 ```
 
-The URL above serves the latest published version from unpkg; pin an exact version in production, e.g. `https://unpkg.com/roxcss@0.0.0/dist/index.min.js`.
+The URL above serves the latest published version from unpkg; pin an exact version in production, e.g. `https://unpkg.com/roxcss@0.0.0/index.min`.
 
-上面的 URL 由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/dist/index.min.js`。
+上面的 URL 由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/index.min`。
 
 **Two builds / 两个构建：**
 
@@ -113,7 +113,7 @@ The full build above bundles the default preset (`rox`, `createConfig`, `createM
 
 ```html
 <script type="module">
-  import { createRox } from "https://unpkg.com/roxcss/dist/core.min.js";
+  import { createRox } from "https://unpkg.com/roxcss/core.min";
 
   // build your own matchers, no default preset / 自建 matcher，无默认预设
   const rox = createRox({
