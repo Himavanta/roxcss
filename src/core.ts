@@ -53,7 +53,7 @@ function parsePrefix(
     const mod = ctx.modifiers[part];
     if (mod) {
       if (envModifier) {
-        fail(ctx, token, `token "${token}" 包含多个环境修饰符`);
+        fail(ctx, token, `token "${token}" contains multiple environment modifiers`);
         return null;
       }
       envModifier = mod;
@@ -77,7 +77,7 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
     if (isFn(node)) {
       const cssDecl = node(segments.slice(cursor));
       if (isNull(cssDecl)) {
-        fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
+        fail(ctx, token, `matcher returned null (from token "${token}")`);
         return null;
       }
       return cssDecl;
@@ -94,16 +94,16 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
       const args = key === null ? [] : segments.slice(cursor);
       const cssDecl = fallback(args);
       if (isNull(cssDecl)) {
-        fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
+        fail(ctx, token, `matcher returned null (from token "${token}")`);
         return null;
       }
       return cssDecl;
     }
-    fail(ctx, token, `token "${token}" 匹配失败`);
+    fail(ctx, token, `token "${token}" did not match`);
     return null;
   }
 
-  fail(ctx, token, `未找到匹配器 "${root}"（来自 token "${token}"）`);
+  fail(ctx, token, `no matcher found for "${root}" (from token "${token}")`);
   return null;
 }
 
