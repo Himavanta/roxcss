@@ -9,22 +9,22 @@ roxcss 是一个运行时原子 CSS 引擎。它是一个模板字符串标签�
 - **Zero build, zero config** — rules are generated and injected at runtime, the first time a class name is used. Nothing to precompile.
 - **Framework-agnostic** — works anywhere a template-string tag works: plain HTML, Vue, React, and more.
 - **No hidden class names** — the class you write is the class in the DOM and the selector in DevTools. What you see is what you typed.
-- **Values, not magic** — `w-170px` means exactly `width: 170px`. No numeric scale sits between your token and the CSS.
+- **Values, not magic** — `w-170px` means exactly `width: 170px`. No numeric scale sits between the class name and the CSS.
 - **Tailwind-style preset** — a built-in preset reuses Tailwind v4 utility names, ready to extend or replace (see [Default Preset / 默认预设](#default-preset--默认预设)).
 - **Synchronous** — the rules are live the moment the call returns.
 
 - **零构建、零配置**：类名首次使用时，规则在运行时生成并注入，无需任何预编译。
 - **框架无关**：任何模板字符串标签可用的地方都能用——原生 HTML、Vue、React 等。
 - **类名即真相**：你写下的类名就是 DOM 中的类、DevTools 中的选择器。所见即所写。
-- **无魔法值**：`w-170px` 就是 `width: 170px`。token 与 CSS 之间没有数值刻度。
+- **无魔法值**：`w-170px` 就是 `width: 170px`。类名与 CSS 之间没有数值刻度。
 - **Tailwind 风格预设**：内置预设复用 Tailwind v4 工具类命名，可自由扩展或替换（见 [Default Preset / 默认预设](#default-preset--默认预设)）。
 - **天生同步**：调用返回的瞬间，规则已经生效。
 
 ## Quick Start / 快速开始
 
-Install the package, then import the default instance and use it as a template tag. The tokens you write are returned unchanged, and the matching rules are injected into `<head>`:
+Install the package, then import the default instance and use it as a template tag. The class names you write are returned unchanged, and the matching rules are injected into `<head>`:
 
-安装依赖后导入默认实例 `rox`，并把它作为模板标签使用。你写下的 token 会原样返回，匹配的规则注入 `<head>`：
+安装依赖后导入默认实例 `rox`，并把它作为模板标签使用。你写下的类名会原样返回，匹配的规则注入 `<head>`：
 
 ```bash
 npm install roxcss
@@ -33,7 +33,7 @@ npm install roxcss
 ```ts
 import { rox } from "roxcss";
 
-// tokens are returned unchanged / token 原样返回
+// class names are returned unchanged / 类名原样返回
 const className = rox`flex flex-col gap-16px p-24px rounded-8px hover:bg-blue`;
 
 document.body.className = className;
@@ -57,9 +57,9 @@ The call injects these rules into a `<style data-roxcss>` element in `<head>`:
 }
 ```
 
-The tag function is sync: when the call returns, the rules are live. Repeated calls with the same tokens hit the cache and never touch the style layer again — steady-state rendering costs nothing beyond the returned string.
+The tag function is sync: when the call returns, the rules are live. Repeated calls with the same class names hit the cache and never touch the style layer again — steady-state rendering costs nothing beyond the returned string.
 
-标签函数是同步的：调用返回时规则已生效。相同 token 的重复调用命中缓存，之后不再触碰样式层——稳定态渲染除了返回字符串外零开销。
+标签函数是同步的：调用返回时规则已生效。相同类名的重复调用命中缓存，之后不再触碰样式层——稳定态渲染除了返回字符串外零开销。
 
 `rox` is the out-of-the-box instance built on the default preset. When you need a preset-free setup — a design system with its own vocabulary, a framework-specific shim, or an experiment — build your own matcher tree with `createRox`. The minimal instance below registers two spacing utilities and one layout utility, plus an `md` breakpoint modifier:
 
@@ -274,9 +274,9 @@ Every type is exported from `roxcss` alongside the functions. The structural typ
 
 ### Writing matchers / 编写 matcher
 
-A matcher receives one argument per remaining segment. Read values directly; spread when the value spans multiple segments:
+Recall the matcher shape from [How It Works / 工作方式](#how-it-works--工作方式): each remaining segment arrives as one argument, and the function returns the declaration string. In practice, single-segment values read the argument directly, while multi-segment values spread:
 
-matcher 的每个剩余段对应一个参数。单段值直接读取，多段值用 rest 展开：
+回顾 [How It Works / 工作方式](#how-it-works--工作方式) 中的 matcher 形态：剩余段每段一个参数，函数返回声明字符串。实际写法上，单段值直接读取参数，多段值用 rest 展开：
 
 ```ts
 createRox({
@@ -467,11 +467,11 @@ import { rox } from "./rox"; // your configured instance / 你配置好的实例
 
 ## Performance & Injection / 性能与注入
 
-- **Batch flush per call.** All new rules from one call are appended to the active `<style>` bucket in a single `textContent` write — one parse, one style invalidation. No per-rule `insertRule` (measured O(N²) under interleaved forced layout; see the docs).
+- **Batch flush per call.** All new rules from one call are appended to the active `<style>` bucket in a single `textContent` write — one parse, one style invalidation. No per-rule `insertRule` (measured O(N²) under interleaved forced layout; see [性能分析.md](./docs/性能分析.md)).
 - **Rolling style buckets.** The active `<style data-roxcss>` element is reused until it holds 1000 rules, then frozen and a new one is created. Bucket count stays at `ceil(rules / 1000)` — no DevTools panel clutter.
 - **SSR safe.** With no DOM, rules are kept in memory and readable via `getCSS()`.
 
-- **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)）。
+- **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)，见 [性能分析.md](./docs/性能分析.md)）。
 - **滚动 style 桶**：活动 `<style data-roxcss>` 元素复用到 1000 条规则后冻结，新建下一个。桶数保持在 ceil(规则数 / 1000)——DevTools 面板不堆积。
 - **SSR 安全**：无 DOM 时规则保存在内存，经 `getCSS()` 读取。
 
