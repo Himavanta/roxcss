@@ -63,7 +63,7 @@ function measure() {
 }
 
 function collectHeader(lines: string[]) {
-  lines.push("RoxCSS 性能报告");
+  lines.push("roxcss 性能报告");
   lines.push("===============");
   lines.push(`生成时间: ${new Date().toISOString()}`);
   lines.push(`浏览器: ${navigator.userAgent}`);

@@ -1,8 +1,8 @@
-# RoxCSS / 运行时原子 CSS 引擎
+# roxcss
 
-RoxCSS is a runtime atomic CSS engine. It is a template-string tag function that parses class names on the fly and injects the matching CSS rules into the document. No build step, no configuration file, no purge phase — whatever class name you write, the rule is generated when it is first used.
+roxcss is a runtime atomic CSS engine. It is a template-string tag function that parses class names on the fly and injects the matching CSS rules into the document. No build step, no configuration file, no purge phase — whatever class name you write, the rule is generated when it is first used.
 
-RoxCSS 是一个运行时原子 CSS 引擎。它是一个模板字符串标签函数，在调用时动态解析类名并注入对应的 CSS 规则。没有构建步骤、没有配置文件、没有清除阶段——你写出什么类名，规则就在首次使用时生成。
+roxcss 是一个运行时原子 CSS 引擎。它是一个模板字符串标签函数，在调用时动态解析类名并注入对应的 CSS 规则。没有构建步骤、没有配置文件、没有清除阶段——你写出什么类名，规则就在首次使用时生成。
 
 ## Features / 特性
 
@@ -338,9 +338,9 @@ const rox = createRox(
 
 ### Working with CSS variables / 配合 CSS 变量
 
-RoxCSS does not interpret values, so CSS variables compose naturally. A common pattern is a private helper that turns segments into a `var()` reference:
+roxcss does not interpret values, so CSS variables compose naturally. A common pattern is a private helper that turns segments into a `var()` reference:
 
-RoxCSS 不解析值，CSS 变量因此天然可组合。常见做法是私有 helper 把段拼成 `var()` 引用：
+roxcss 不解析值，CSS 变量因此天然可组合。常见做法是私有 helper 把段拼成 `var()` 引用：
 
 ```ts
 // segments → var(--accent-bg) / 段 → var(--accent-bg)
