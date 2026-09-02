@@ -12,13 +12,13 @@ export default defineConfig({
       exports: true,
     },
     {
-      outputOptions: {
-        entryFileNames: "index.min.js",
-      },
       platform: "neutral",
       minify: true,
       dts: false,
       exports: true,
+      outputOptions: {
+        entryFileNames: "index.min.js",
+      },
     },
   ],
   lint: {
