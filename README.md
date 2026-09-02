@@ -86,11 +86,17 @@ myRox`md:flex-col p-16px`;
 // the media-wrapped rule is injected / 媒体查询包裹的规则被注入
 ```
 
-**No build, no install — load from a CDN / 零构建零安装——CDN 直接引入：**
+## CDN Usage / CDN 用法
 
-The package is pure ESM with zero dependencies, so the minified build can be imported directly in a plain HTML page — no bundler, no install. Paste this into an HTML file and open it in a browser:
+No install, no bundler — load the package straight from a CDN in a plain HTML page. Two builds are published; pick one by how you use roxcss:
 
-包是零依赖的纯 ESM，压缩构建可以直接在普通 HTML 页面中导入——无需打包器、无需安装。把下面代码贴进 HTML 文件，用浏览器打开即可：
+无需安装、无需打包——在普通 HTML 页面中直接从 CDN 加载。两个构建按使用方式选择：
+
+### Full build / 全量构建
+
+The default build bundles the default preset — `rox`, `createConfig`, `createModifiers`, and the breakpoint table — ready to use:
+
+默认构建内置默认预设——`rox`、`createConfig`、`createModifiers` 与断点表——开箱即用：
 
 ```html
 <script type="module">
@@ -101,15 +107,11 @@ The package is pure ESM with zero dependencies, so the minified build can be imp
 </script>
 ```
 
-The URL above serves the latest published version from unpkg; pin an exact version in production, e.g. `https://unpkg.com/roxcss@0.0.0/index.min`.
+### Core build / 核心构建
 
-上面的 URL 由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/index.min`。
+The core build ships only the engine — `createRox` plus the DOM injection — at about 2 kB minified. Use it when you bring your own matchers and skip the preset:
 
-**Two builds / 两个构建：**
-
-The full build above bundles the default preset (`rox`, `createConfig`, `createModifiers`, …). When you bring your own matchers, a lighter core build ships only the engine — `createRox` plus the DOM injection — at about 2 kB minified:
-
-上面是全量构建，内置默认预设（`rox`、`createConfig`、`createModifiers` 等）。自带 matcher 时可用更轻的核心构建——只含引擎 `createRox` 与 DOM 注入，压缩后约 2 kB：
+核心构建只含引擎——`createRox` 与 DOM 注入——压缩后约 2 kB。自带 matcher、不需要预设时使用：
 
 ```html
 <script type="module">
@@ -126,13 +128,17 @@ The full build above bundles the default preset (`rox`, `createConfig`, `createM
 </script>
 ```
 
+Both URLs serve the latest published version from unpkg; pin an exact version in production, e.g. `https://unpkg.com/roxcss@0.0.0/index.min`.
+
+两个 URL 均由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/index.min`。
+
 ## How It Works / 工作方式
 
 A token is split by `-` into segments, and the segments walk a nested **matcher tree** with two kinds of nodes — functions and objects:
 
 token 按 `-` 拆成段，段在嵌套的 **matcher 树**中逐段查找。节点只有两种——函数与对象：
 
-**Function node / 函数节点：**
+### Function node / 函数节点
 
 A function swallows the remaining segments and is called with one argument per segment. It returns the declaration text — or `null` to mark failure.
 
@@ -149,7 +155,7 @@ p: (v) => `padding:${v}`;
 //     → padding:24px
 ```
 
-**Object node / 对象节点：**
+### Object node / 对象节点
 
 An object is a container that remaining segments descend through as keys. The `""` key is the fallback — used when the segments run out or no key matches.
 
@@ -404,25 +410,25 @@ The default preset borrows its vocabulary from **Tailwind v4** — the same util
 
 默认预设的词汇取自 **Tailwind v4**——相同的工具类名、相同的嵌套结构——熟悉的类名含义不变。两处约定与 Tailwind 不同，先了解它们，下面的示例就都能读懂：
 
-**1. Values carry their units / 值自带单位：**
+### Values carry their units / 值自带单位
 
 roxcss has no numeric scale: `p-4` does not mean `1rem` as it does in Tailwind. Write the full value and it lands in the declaration verbatim — `p-4px` → `padding:4px`, `w-170px` → `width:170px`. A bare number produces invalid CSS; that is a caller error.
 
 roxcss 没有数值刻度：`p-4` 不像在 Tailwind 中那样表示 `1rem`。单位写全，值原样进入声明——`p-4px` → `padding:4px`、`w-170px` → `width:170px`。裸数字会生成无效 CSS，属调用方错误。
 
-**2. `text` is size, `color` is color / `text` 管字号，`color` 管颜色：**
+### `text` is size, `color` is color / `text` 管字号，`color` 管颜色
 
 Tailwind overloads `text-*` for both sizing and coloring; roxcss keeps them apart — `text-16px` sets font-size, `color-red` sets color.
 
 Tailwind 用 `text-*` 兼任字号与颜色；roxcss 分开处理——`text-16px` 设置字号，`color-red` 设置颜色。
 
-**Utilities by category / 按类别示例：**
+### Utilities by category / 按类别示例
 
 The preset covers layout, spacing, typography, borders, colors, and effects. A selection follows, grouped by category; the full listing lives in `docs/预设设计.md`.
 
 预设覆盖布局、间距、排版、边框、颜色与效果。以下按类别节选，完整清单见 `docs/预设设计.md`。
 
-**Layout / 布局：**
+#### Layout / 布局
 
 ```text
 flex              → display:flex
@@ -435,7 +441,7 @@ p-24px            → padding:24px
 w-170px           → width:170px
 ```
 
-**Typography / 排版：**
+#### Typography / 排版
 
 ```text
 text-16px         → font-size:16px
@@ -446,7 +452,7 @@ underline         → text-decoration-line:underline
 truncate          → overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 ```
 
-**Borders, colors & effects / 边框、颜色与效果：**
+#### Borders, colors & effects / 边框、颜色与效果
 
 ```text
 rounded-5px       → border-radius:5px
@@ -457,7 +463,7 @@ duration-150ms    → transition-duration:150ms
 delay-75ms        → transition-delay:75ms
 ```
 
-**Position, overflow & more / 定位、溢出与其他：**
+#### Position, overflow & more / 定位、溢出与其他
 
 ```text
 relative          → position:relative
