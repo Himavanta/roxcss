@@ -1,7 +1,26 @@
-import type { MatcherNode, Modifier, Preset } from "./types.ts";
+import type { MatcherNode, Modifier, Preset, PresetOverrides } from "./types.ts";
 
 /** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
 const space = (vs: string[]) => vs.join(" ");
+
+/** 普通对象判断（容器，与引擎 lookup 语义一致）：仅 constructor === Object；函数/数组/类实例/其他一律不算 */
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+  !!v && (v as object).constructor === Object;
+
+/**
+ * 递归覆盖合并：两边都是普通对象（容器）则逐键递归，否则后者胜。
+ * patch 为 undefined 保留 base；null 作为"其他值"整体替换（引擎视为键不存在，即删除）。
+ */
+function merge(base: unknown, patch: unknown): unknown {
+  if (patch === undefined) return base;
+  if (isPlainObject(patch)) {
+    const b: Record<string, unknown> = isPlainObject(base) ? base : {};
+    const out: Record<string, unknown> = { ...b };
+    for (const key in patch) out[key] = merge(b[key], patch[key]);
+    return out;
+  }
+  return patch;
+}
 
 /** 默认断点：sm/md/lg/xl/2xl（min-width 媒体查询） */
 export const defaultBreakpoints = { sm: 640, md: 768, lg: 1024, xl: 1280, "2xl": 1536 } as const;
@@ -265,11 +284,14 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
 /**
  * 生成默认配置：每次调用返回全新对象（matchers/modifiers 整树重建），
- * 多实例之间零共享引用。overrides 浅合并，自定义覆盖同名的 matcher/modifier。
+ * 多实例之间零共享引用。overrides 递归覆盖合并：
+ * - 对象（子树）逐键递归合并，默认键保留；
+ * - 函数整体替换；undefined 键保留默认；
+ * - null 表示删除该键（引擎将其视为不存在）。
  */
-export function createConfig(overrides?: Partial<Preset>): Preset {
+export function createConfig(overrides?: PresetOverrides): Preset {
   return {
-    matchers: { ...createBaseMatchers(), ...overrides?.matchers },
-    modifiers: { ...createModifiers(), ...overrides?.modifiers },
+    matchers: merge(createBaseMatchers(), overrides?.matchers) as Preset["matchers"],
+    modifiers: merge(createModifiers(), overrides?.modifiers) as NonNullable<Preset["modifiers"]>,
   };
 }

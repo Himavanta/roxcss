@@ -16,6 +16,13 @@ function warn(message: string) {
 /** 类型守卫：是否为函数节点 */
 const isFn = (v: unknown): v is MatcherFunction => typeof v === "function";
 
+/** 普通对象判断（容器，与 config merge 语义一致）：仅 constructor === Object 才是可遍历子树 */
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+  !!v && (v as object).constructor === Object;
+
+/** 可继续解析的节点：函数或普通对象；其他值（null=删除键、类实例等）一律视为不存在 */
+const isNode = (v: unknown): v is MatcherNode => isFn(v) || isPlainObject(v);
+
 /** 判断是否为 null 或 undefined */
 const isNull = (v: unknown): v is null | undefined => v == null;
 
@@ -61,6 +68,8 @@ function parsePrefix(
 function lookup(ctx: EngineContext, segments: string[], token: string): string | null {
   const [root] = segments;
   let node: MatcherNode | undefined = ctx.matchers[root];
+  // 根节点被 null 删除时视为未找到
+  if (!isNode(node)) node = undefined;
   // cursor 是逐段查找的指针，必须按下标前进（改用 slice 复制会退化为 O(n²)）
   let cursor = 1;
 
@@ -75,7 +84,8 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
     }
     const key = cursor < segments.length ? segments[cursor] : null;
     const fallback = node[""];
-    if (key !== null && Object.hasOwn(node, key)) {
+    // 键值非节点（被 null 删除等）时视同该键不存在，落到 fallback 或失败
+    if (key !== null && Object.hasOwn(node, key) && isNode(node[key])) {
       node = node[key];
       cursor++;
       continue;

@@ -1,14 +1,13 @@
-import { createRox, createConfig, type MatcherNode } from "roxcss";
+import { createRox, createConfig } from "roxcss";
 
 /**
  * example 页面的 rox 实例。
  *
- * - 基于默认配置（createConfig），页面特有部分通过 overrides 覆盖：
+ * - 基于默认配置（createConfig），页面特有部分通过 overrides 递归覆盖：
  *   颜色/边框/阴影等使用 style.css 中 :root 的 CSS 变量，
  *   暗色模式（prefers-color-scheme 切换变量值）依然生效
  * - 值一律原样使用，单位由调用者写全（如 `w-170px`）
  */
-const base = createConfig();
 
 /** 页面 CSS 变量体系：段数组拼变量名并包成 var() 引用，如 ["accent","bg"] → var(--accent-bg) */
 const cssVar = (vs: string[]) => `var(--${vs.join("-")})`;
@@ -21,9 +20,8 @@ export const rox = createRox(
         `@media (max-width: 1024px) { ${selector} { ${cssDecl} } }`,
     },
     matchers: {
-      // 基于默认 flex 树扩展：lg 两栏布局各占一半（页面私有）
+      // 递归覆盖默认 flex 树，仅补页面私有的 half（lg 两栏布局各占一半）
       flex: {
-        ...(base.matchers.flex as Record<string, MatcherNode>),
         half: () => "flex:1 1 calc(50% - 8px)",
       },
       // 页面 CSS 变量体系：剩余段拼为变量名，如 color-accent-bg → color:var(--accent-bg)
@@ -42,9 +40,8 @@ export const rox = createRox(
         border: () => "transition:border-color 0.3s",
         shadow: () => "transition:box-shadow 0.3s",
       },
-      // 页面 monospace 字体变量（覆盖默认 font 树的 mono 键）
+      // 覆盖默认 font 树的 mono 键，用页面 monospace 变量
       font: {
-        ...(base.matchers.font as Record<string, MatcherNode>),
         mono: () => "font-family:var(--mono)",
       },
 

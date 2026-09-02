@@ -164,7 +164,7 @@ test("默认配置可被 createRox 复用", () => {
   expect(a.getCSS()).toContain(`[class~="hidden"] { display:none }`);
 });
 
-test("createConfig 接受 overrides 浅合并", () => {
+test("createConfig overrides 递归覆盖合并", () => {
   const a = createRox(
     createConfig({
       matchers: { custom: () => "display:grid" },

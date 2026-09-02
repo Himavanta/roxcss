@@ -6,8 +6,10 @@ export { createRox } from "./core.ts";
 export type {
   MatcherFunction,
   MatcherNode,
+  MatcherPatch,
   Modifier,
   Preset,
+  PresetOverrides,
   RoxInstance,
   RoxOptions,
 } from "./types.ts";

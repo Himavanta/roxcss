@@ -35,6 +35,19 @@ export interface Preset {
 }
 
 /**
+ * 配置覆盖节点：与 MatcherNode 同构，额外允许 null。
+ * 合并时对象递归覆盖、其余值（函数/null）整体替换；
+ * null 表示"删除"——引擎会把该键当作不存在。
+ */
+export type MatcherPatch = MatcherFunction | null | { [key: string]: MatcherPatch };
+
+/** createConfig 的覆盖参数：顶层 matchers/modifiers 可缺省，键值可递归覆盖或置 null 删除 */
+export interface PresetOverrides {
+  matchers?: Record<string, MatcherPatch>;
+  modifiers?: Record<string, Modifier | null>;
+}
+
+/**
  * createRox 返回的实例：模板字符串标签函数，
  * 挂载 getCSS() 用于读取已注入的全部 CSS（调试与 SSR 收集）。
  */

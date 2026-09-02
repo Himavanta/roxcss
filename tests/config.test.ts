@@ -309,3 +309,62 @@ test("P2 overflow 轴同构（D08）", () => {
   expect(rox`overflow-y-hidden`).toBe("overflow-y-hidden");
   expect(rox.getCSS()).toContain(`[class~="overflow-y-hidden"] { overflow-y:hidden }`);
 });
+
+// ---- createConfig 递归覆盖合并 ----
+
+test("递归覆盖：子树补键不丢默认", () => {
+  const a = createRox(
+    createConfig({
+      matchers: { flex: { half: () => "flex:1 1 calc(50% - 8px)" } },
+    }),
+  );
+  // 默认 flex 键保留
+  expect(a`flex-col`).toBe("flex-col");
+  expect(a.getCSS()).toContain(`[class~="flex-col"] { display:flex;flex-direction:column }`);
+  // 新增键生效
+  expect(a`flex-half`).toBe("flex-half");
+  expect(a.getCSS()).toContain(`[class~="flex-half"] { flex:1 1 calc(50% - 8px) }`);
+});
+
+test("null 删除键：语义消失，兄弟键保留", () => {
+  const a = createRox(createConfig({ matchers: { flex: { col: null } } }));
+  // flex-col 被删除 → 落入 flex 的 display 兜底
+  expect(a`flex-col`).toBe("flex-col");
+  expect(a.getCSS()).toContain(`[class~="flex-col"] { display:flex }`);
+  // 兄弟键不受影响
+  expect(a`flex-wrap`).toBe("flex-wrap");
+  expect(a.getCSS()).toContain(`[class~="flex-wrap"] { display:flex;flex-wrap:wrap }`);
+
+  // 顶层 matcher 删除：匹配失败不注入
+  const b = createRox(createConfig({ matchers: { hidden: null } }));
+  const before = b.getCSS().length;
+  expect(b`hidden`).toBe("hidden");
+  expect(b.getCSS().length).toBe(before);
+});
+
+test("函数覆盖整棵子树", () => {
+  const a = createRox(
+    createConfig({
+      matchers: {
+        // 把默认的树形 text 整体替换成自定义函数
+        text: (vs) => `text-transform:${vs.join(" ")}`,
+      },
+    }),
+  );
+  expect(a`text-uppercase`).toBe("text-uppercase");
+  expect(a.getCSS()).toContain(`[class~="text-uppercase"] { text-transform:uppercase }`);
+});
+
+test("严格容器语义：非普通对象（Object.create(null)）不作为子树", () => {
+  // merge 与引擎统一"仅普通对象 = 容器"，不依赖 constructor 的对象视为不存在
+  const custom = Object.create(null) as Record<string, unknown>;
+  custom.foo = () => "display:grid";
+  const a = createRox(
+    createConfig({
+      matchers: { custom: custom as never },
+    }),
+  );
+  const before = a.getCSS().length;
+  expect(a`custom-foo`).toBe("custom-foo");
+  expect(a.getCSS().length).toBe(before);
+});
