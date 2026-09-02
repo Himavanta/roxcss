@@ -2,6 +2,17 @@
   "name": "roxcss",
   "version": "0.0.0",
   "description": "Runtime atomic CSS engine: template-string tag that parses class names and injects rules on the fly.",
+  "keywords": [
+    "atomic-css",
+    "css",
+    "css-in-js",
+    "runtime",
+    "styling",
+    "tailwind",
+    "template-literal",
+    "utility-classes",
+    "zero-dependency"
+  ],
   "homepage": "https://github.com/author/library#readme",
   "bugs": {
     "url": "https://github.com/author/library/issues"
