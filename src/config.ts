@@ -1,11 +1,8 @@
 import type { MatcherNode, Modifier, Preset, PresetOverrides } from "./types.ts";
+import { isPlainObject } from "./core.ts";
 
 /** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
 const space = (vs: string[]) => vs.join(" ");
-
-/** 普通对象判断（容器，与引擎 lookup 语义一致）：仅 constructor === Object；函数/数组/类实例/其他一律不算 */
-const isPlainObject = (v: unknown): v is Record<string, unknown> =>
-  !!v && (v as object).constructor === Object;
 
 /**
  * 递归覆盖合并：两边都是普通对象（容器）则逐键递归，否则后者胜。
