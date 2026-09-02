@@ -1,7 +1,7 @@
 {
   "name": "roxcss",
   "version": "0.0.0",
-  "description": "A starter for creating a TypeScript package.",
+  "description": "Runtime atomic CSS engine: template-string tag that parses class names and injects rules on the fly.",
   "homepage": "https://github.com/author/library#readme",
   "bugs": {
     "url": "https://github.com/author/library/issues"
