@@ -360,25 +360,27 @@ createRox(
 
 ## Default Preset / 默认预设
 
-The default preset aligns its naming with **Tailwind v4** — same utility names, same nesting logic — so knowledge transfers directly. Two deliberate differences:
+The default preset borrows its vocabulary from **Tailwind v4** — the same utility names, the same nesting — so familiar classes keep their meaning. Two conventions differ from Tailwind, and knowing them once is enough to read everything below:
 
-默认预设的命名对齐 **Tailwind v4**——相同的工具类名、相同的嵌套逻辑，知识可直接迁移。两处刻意的差异：
+默认预设的词汇取自 **Tailwind v4**——相同的工具类名、相同的嵌套结构——熟悉的类名含义不变。两处约定与 Tailwind 不同，先了解它们，下面的示例就都能读懂：
 
-**Values are passed through as-is / 值原样透传：**
+**1. Values carry their units / 值自带单位：**
 
-Tailwind translates `p-4` into `1rem` via its numeric scale; roxcss does not interpret numbers. Write the full value: `p-4px`, `w-170px`, `gap-16px`, `aspect-16/9`. Pure numbers produce invalid CSS — a caller error.
+roxcss has no numeric scale: `p-4` does not mean `1rem` as it does in Tailwind. Write the full value and it lands in the declaration verbatim — `p-4px` → `padding:4px`, `w-170px` → `width:170px`. A bare number produces invalid CSS; that is a caller error.
 
-Tailwind 通过数值刻度把 `p-4` 翻译成 `1rem`；roxcss 不解释数字。单位写全：`p-4px`、`w-170px`、`gap-16px`、`aspect-16/9`。纯数字会生成无效 CSS，属调用方错误。
+roxcss 没有数值刻度：`p-4` 不像在 Tailwind 中那样表示 `1rem`。单位写全，值原样进入声明——`p-4px` → `padding:4px`、`w-170px` → `width:170px`。裸数字会生成无效 CSS，属调用方错误。
 
-**`text` is font-size, `color` is a separate root / `text` 管字号，`color` 是独立根：**
+**2. `text` is size, `color` is color / `text` 管字号，`color` 管颜色：**
 
-Tailwind overloads `text-*` for color; roxcss keeps them apart: `text-16px` → font-size, `color-accent` → color.
+Tailwind overloads `text-*` for both sizing and coloring; roxcss keeps them apart — `text-16px` sets font-size, `color-red` sets color.
 
-Tailwind 用 `text-*` 兼任颜色；roxcss 分开处理：`text-16px` → 字号，`color-accent` → 颜色。
+Tailwind 用 `text-*` 兼任字号与颜色；roxcss 分开处理——`text-16px` 设置字号，`color-red` 设置颜色。
 
-The preset covers layout, spacing, typography, borders, colors, and effects, grouped by category below — each class maps one-to-one to a declaration, and the value in the class name appears verbatim in the CSS. This is a selection; the full listing lives in `docs/预设设计.md`.
+**Utilities by category / 按类别示例：**
 
-默认预设覆盖布局、间距、排版、边框、颜色与效果。下面按类别示例——每个类名一对一映射到声明，类名中的值原样出现在 CSS 中。此为节选，完整清单见 `docs/预设设计.md`。
+The preset covers layout, spacing, typography, borders, colors, and effects. A selection follows, grouped by category; the full listing lives in `docs/预设设计.md`.
+
+预设覆盖布局、间距、排版、边框、颜色与效果。以下按类别节选，完整清单见 `docs/预设设计.md`。
 
 **Layout / 布局：**
 
