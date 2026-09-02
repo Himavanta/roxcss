@@ -1,6 +1,6 @@
 {
   "name": "roxcss",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Runtime atomic CSS engine: template-string tag that parses class names and injects rules on the fly.",
   "keywords": [
     "atomic-css",
