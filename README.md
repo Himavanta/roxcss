@@ -163,6 +163,12 @@ interface RoxInstance {
   - returns every rule the instance has injected so far, joined with newlines. Useful for SSR style collection and debugging; works even without a DOM.
   - 返回实例迄今注入的全部规则，换行连接。适用于 SSR 样式收集与调试，无 DOM 时同样可用。
 
+### `rox`
+
+The default instance: `createRox(createConfig())` — the out-of-the-box matcher tree plus `sm`–`2xl` breakpoint modifiers. Use it directly when the default preset fits; build a custom instance with the factories below when it does not.
+
+默认实例：`createRox(createConfig())`——开箱即用的 matcher 树加 `sm`–`2xl` 断点修饰符。默认预设适用时直接使用；不适用时用下面的工厂函数构建自定义实例。
+
 ### `createConfig(overrides?)`
 
 Creates the default preset — a fresh matcher tree (90+ top-level roots) plus fresh breakpoint modifiers. Every call rebuilds the whole tree, so instances sharing a config never share references.
@@ -194,24 +200,42 @@ createModifiers({ ...defaultBreakpoints, xxl: 1700 });
 | `xl`              | 1280px               |
 | `2xl`             | 1536px               |
 
-### `rox`
-
-The default instance: `createRox(createConfig())`. Import it and go.
-
-默认实例：`createRox(createConfig())`。导入即用。
-
 ### Types / 类型
 
-| Type / 类型       | Definition / 定义                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------------------------- |
-| `MatcherFunction` | `(...args: string[]) => string \| null` — one argument per remaining segment. / 剩余段每段一个参数 |
-| `MatcherNode`     | `MatcherFunction \| { [key: string]: MatcherNode }`                                                |
-| `Modifier`        | `(selector: string, cssDecl: string) => string`                                                    |
-| `MatcherPatch`    | `MatcherFunction \| null \| { [key: string]: MatcherPatch }` — override shape. / 覆盖形状          |
-| `PresetOverrides` | `{ matchers?: Record<string, MatcherPatch>; modifiers?: Record<string, Modifier \| null> }`        |
-| `RoxOptions`      | `{ matchers: Record<string, MatcherNode>; modifiers?: Record<string, Modifier> }`                  |
-| `Preset`          | `{ matchers: Record<string, MatcherNode>; modifiers?: Record<string, Modifier> }`                  |
-| `RoxInstance`     | Callable template tag with `getCSS`. / 可调用模板标签 + `getCSS`                                   |
+Every type is exported from `roxcss` alongside the functions. The structural types are spelled out in the entries above; the core shapes are:
+
+全部类型与函数一同从 `roxcss` 导出。结构性类型的完整定义见上方 API 条目，核心形状如下：
+
+- **`MatcherFunction`** `(...args: string[]) => string | null`
+  - leaf of the matcher tree; one argument per remaining segment. Returning `null` marks failure.
+  - matcher 树叶子；剩余段每段一个参数。返回 `null` 表示匹配失败。
+
+- **`MatcherNode`** `MatcherFunction | { [key: string]: MatcherNode }`
+  - a leaf function, or a nested container whose keys are segment names and whose `""` key is the fallback.
+  - 叶子函数，或嵌套容器——键是段名，`""` 键为兜底。
+
+- **`Modifier`** `(selector: string, cssDecl: string) => string`
+  - wraps a complete rule in an environment (`@media`, `.dark`, …) given the final selector and declaration.
+  - 根据最终选择器与声明，把完整规则包裹进环境（`@media`、`.dark` 等）。
+
+- **`MatcherPatch`** `MatcherFunction | null | { [key: string]: MatcherPatch }`
+  - the override shape for `createConfig`: same as `MatcherNode`, plus `null` to delete a key.
+  - `createConfig` 的覆盖形状：与 `MatcherNode` 相同，多出的 `null` 表示删除键。
+
+- **`RoxOptions`** `{ matchers: Record<string, MatcherNode>; modifiers?: Record<string, Modifier> }`
+  - the input of `createRox`.
+  - `createRox` 的入参。
+
+- **`Preset`** `{ matchers: Record<string, MatcherNode>; modifiers?: Record<string, Modifier> }`
+  - the output of `createConfig`.
+  - `createConfig` 的返回。
+
+- **`PresetOverrides`** `{ matchers?: Record<string, MatcherPatch>; modifiers?: Record<string, Modifier | null> }`
+  - the input of `createConfig`.
+  - `createConfig` 的覆盖入参。
+
+- **`RoxInstance`** — see the `RoxInstance` entry above: a callable template tag with `getCSS`.
+  - 见上方 `RoxInstance` 条目：可调用模板标签 + `getCSS`。
 
 ## Customization / 自定义
 
@@ -323,29 +347,29 @@ The preset covers layout, spacing, sizing, typography, borders, effects, and mor
 
 默认预设覆盖布局、间距、尺寸、排版、边框、效果等。下表展示类名如何映射为声明——由于值透传，类名中的值会原样出现在 CSS 中。此为节选，完整清单见 `docs/预设设计.md`。
 
-| Class / 类名                           | Declaration / 声明                                                      |
-| -------------------------------------- | ----------------------------------------------------------------------- |
-| `flex` / `flex-col` / `flex-row`       | `display:flex` / `flex-direction:column` / `flex-direction:row`         |
-| `flex-1` / `grow`                      | `flex:1` / `flex-grow:1`                                                |
-| `items-center` / `justify-between`     | `align-items:center` / `justify-content:space-between`                  |
-| `gap-16px` / `gap-x-8px`               | `gap:16px` / `column-gap:8px`                                           |
-| `grid` / `grid-cols-3`                 | `display:grid` / `grid-template-columns:repeat(3,minmax(0,1fr))`        |
-| `col-span-2`                           | `grid-column:span 2 / span 2`                                           |
-| `p-24px` / `pt-8px`                    | `padding:24px` / `padding-top:8px`（`m-` / `mx-` / `mt-`… 同构）        |
-| `w-170px` / `h-28px`                   | `width:170px` / `height:28px`（`size-*` 宽高同设）                      |
-| `inset-x-0` / `top-0`                  | `inset-inline:0` / `top:0`                                              |
-| `z-10` / `relative` / `absolute`       | `z-index:10` / `position:relative` / `position:absolute`                |
-| `text-16px` / `text-center`            | `font-size:16px` / `text-align:center`                                  |
-| `font-bold` / `leading-16px`           | `font-weight:700` / `line-height:16px`                                  |
-| `rounded-5px` / `border-2px-solid-red` | `border-radius:5px` / `border:2px solid red`                            |
-| `bg-blue` / `color-red`                | `background:blue` / `color:red`                                         |
-| `duration-150ms` / `delay-75ms`        | `transition-duration:150ms` / `transition-delay:75ms`                   |
-| `overflow-hidden` / `overflow-x-auto`  | `overflow:hidden` / `overflow-x:auto`                                   |
-| `underline` / `truncate`               | `text-decoration-line:underline` / 单行截断三合一（`text-overflow` 等） |
-| `whitespace-nowrap` / `break-all`      | `white-space:nowrap` / `word-break:break-all`                           |
-| `hidden` / `inline-flex`               | `display:none` / `inline-flex`                                          |
-| `list-none` / `list-disc`              | `list-style:none` / `list-style-type:disc`                              |
-| `isolate` / `aspect-16/9`              | `isolation:isolate` / `aspect-ratio:16/9`                               |
+| Class / 类名                           | Declaration / 声明                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `flex` / `flex-col` / `flex-row`       | `display:flex` / `flex-direction:column` / `flex-direction:row`                                |
+| `flex-1` / `grow`                      | `flex:1` / `flex-grow:1`                                                                       |
+| `items-center` / `justify-between`     | `align-items:center` / `justify-content:space-between`                                         |
+| `gap-16px` / `gap-x-8px`               | `gap:16px` / `column-gap:8px`                                                                  |
+| `grid` / `grid-cols-3`                 | `display:grid` / `grid-template-columns:repeat(3,minmax(0,1fr))`                               |
+| `col-span-2`                           | `grid-column:span 2 / span 2`                                                                  |
+| `p-24px` / `pt-8px`                    | `padding:24px` / `padding-top:8px`                                                             |
+| `w-170px` / `h-28px`                   | `width:170px` / `height:28px`                                                                  |
+| `inset-x-0` / `top-0`                  | `inset-inline:0` / `top:0`                                                                     |
+| `z-10` / `relative` / `absolute`       | `z-index:10` / `position:relative` / `position:absolute`                                       |
+| `text-16px` / `text-center`            | `font-size:16px` / `text-align:center`                                                         |
+| `font-bold` / `leading-16px`           | `font-weight:700` / `line-height:16px`                                                         |
+| `rounded-5px` / `border-2px-solid-red` | `border-radius:5px` / `border:2px solid red`                                                   |
+| `bg-blue` / `color-red`                | `background:blue` / `color:red`                                                                |
+| `duration-150ms` / `delay-75ms`        | `transition-duration:150ms` / `transition-delay:75ms`                                          |
+| `overflow-hidden` / `overflow-x-auto`  | `overflow:hidden` / `overflow-x:auto`                                                          |
+| `underline` / `truncate`               | `text-decoration-line:underline` / `overflow:hidden;text-overflow:ellipsis;white-space:nowrap` |
+| `whitespace-nowrap` / `break-all`      | `white-space:nowrap` / `word-break:break-all`                                                  |
+| `hidden` / `inline-flex`               | `display:none` / `inline-flex`                                                                 |
+| `list-none` / `list-disc`              | `list-style:none` / `list-style-type:disc`                                                     |
+| `isolate` / `aspect-16/9`              | `isolation:isolate` / `aspect-ratio:16/9`                                                      |
 
 Breakpoints come from `createModifiers()` with `defaultBreakpoints`, all `min-width` media queries. Prefix a token with a breakpoint and it applies from that width up:
 
@@ -390,10 +414,6 @@ import { rox } from "./rox"; // your configured instance / 你配置好的实例
 - **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)）。
 - **滚动 style 桶**：活动 `<style data-roxcss>` 元素复用到 1000 条规则后冻结，新建下一个。桶数保持在 ceil(规则数 / 1000)——DevTools 面板不堆积。
 - **SSR 安全**：无 DOM 时规则保存在内存，经 `getCSS()` 读取。
-
-Measurements and the full write-up live in the design docs (in Chinese).
-
-实测数据与完整分析见设计文档（中文）。
 
 ## Docs / 设计文档
 
