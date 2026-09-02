@@ -86,6 +86,25 @@ myRox`md:flex-col p-16px`;
 // the media-wrapped rule is injected / 媒体查询包裹的规则被注入
 ```
 
+**No build, no install — load from a CDN / 零构建零安装——CDN 直接引入：**
+
+The package is pure ESM with zero dependencies, so the minified build can be imported directly in a plain HTML page — no bundler, no install. Paste this into an HTML file and open it in a browser:
+
+包是零依赖的纯 ESM，压缩构建可以直接在普通 HTML 页面中导入——无需打包器、无需安装。把下面代码贴进 HTML 文件，用浏览器打开即可：
+
+```html
+<script type="module">
+  import { rox } from "https://unpkg.com/roxcss/dist/index.min.js";
+
+  // class names are returned unchanged, rules are injected / 类名原样返回并注入规则
+  document.body.className = rox`flex flex-col gap-16px p-24px hover:bg-blue`;
+</script>
+```
+
+The URL above serves the latest published version from unpkg; pin an exact version in production, e.g. `https://unpkg.com/roxcss@0.0.0/dist/index.min.js`.
+
+上面的 URL 由 unpkg 提供最新发布版本；生产环境建议固定版本，如 `https://unpkg.com/roxcss@0.0.0/dist/index.min.js`。
+
 ## How It Works / 工作方式
 
 A token is split by `-` into segments, and the segments walk a nested **matcher tree** with two kinds of nodes — functions and objects:
