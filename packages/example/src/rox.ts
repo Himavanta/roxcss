@@ -17,9 +17,9 @@ export const rox = createRox(
     },
     matchers: {
       // 页面 CSS 变量体系：剩余段拼为变量名，如 bg-accent-bg → var(--accent-bg)
-      bg: (...vs) => `background:var(--${vs.join("-")})`,
+      bg: (vs) => `background:var(--${vs.join("-")})`,
       text: {
-        "": (...vs) => `color:var(--${vs.join("-")})`,
+        "": (vs) => `color:var(--${vs.join("-")})`,
         center: () => "text-align:center",
         left: () => "text-align:left",
         right: () => "text-align:right",
@@ -27,9 +27,9 @@ export const rox = createRox(
       border: {
         t: () => "border-top:1px solid var(--border)",
         b: () => "border-bottom:1px solid var(--border)",
-        r: (v) => (v == null ? "border-right:1px solid var(--border)" : `border-right:${v}`),
+        r: ([v]) => (v == null ? "border-right:1px solid var(--border)" : `border-right:${v}`),
         x: () => "border-inline:1px solid var(--border)",
-        color: (...vs) => `border-color:var(--${vs.join("-")})`,
+        color: (vs) => `border-color:var(--${vs.join("-")})`,
       },
       outline: () => "outline:2px solid var(--accent);outline-offset:2px",
       shadow: () => "box-shadow:var(--shadow)",

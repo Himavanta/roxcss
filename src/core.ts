@@ -66,7 +66,7 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
 
   while (node) {
     if (isFn(node)) {
-      const cssDecl = node(...segments.slice(cursor));
+      const cssDecl = node(segments.slice(cursor));
       if (isNull(cssDecl)) {
         fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
         return null;
@@ -82,7 +82,7 @@ function lookup(ctx: EngineContext, segments: string[], token: string): string |
     }
     if (isFn(fallback)) {
       const args = key === null ? [] : segments.slice(cursor);
-      const cssDecl = fallback(...args);
+      const cssDecl = fallback(args);
       if (isNull(cssDecl)) {
         fail(ctx, token, `匹配器返回 null（来自 token "${token}"）`);
         return null;

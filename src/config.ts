@@ -1,7 +1,8 @@
 import type { MatcherNode, Modifier, Preset } from "./types.ts";
 
 /** 将多个段以空格连接为简写值（如 p-5px-10px → "5px 10px"） */
-const space = (...vs: string[]) => vs.join(" ");
+/** 将段数组以空格连接为简写值（如 ["5px","10px"] → "5px 10px"） */
+const space = (vs: string[]) => vs.join(" ");
 
 /** 标准断点：sm/md/lg/xl（min-width 媒体查询） */
 const breakpoints: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280 };
@@ -44,7 +45,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     half: () => "flex:1 1 calc(50% - 8px)",
     grow: () => "flex-grow:1",
     space: {
-      "": (v) => `justify-content:space-${v}`,
+      "": ([v]) => `justify-content:space-${v}`,
       between: () => "justify-content:space-between",
       around: () => "justify-content:space-around",
     },
@@ -63,47 +64,47 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     end: () => "justify-content:flex-end",
   },
   place: {
-    content: (v) => `place-content:${v}`,
-    items: (v) => `place-items:${v}`,
+    content: ([v]) => `place-content:${v}`,
+    items: ([v]) => `place-items:${v}`,
   },
   grid: {
     "": () => "display:grid",
-    cols: (v) => `grid-template-columns:repeat(${v},minmax(0,1fr))`,
+    cols: ([v]) => `grid-template-columns:repeat(${v},minmax(0,1fr))`,
   },
 
   // 间距（多段值按顺序拼为简写）
-  p: (...vs) => `padding:${space(...vs)}`,
-  px: (...vs) => `padding-inline:${space(...vs)}`,
-  py: (...vs) => `padding-block:${space(...vs)}`,
-  pt: (...vs) => `padding-top:${space(...vs)}`,
-  pr: (...vs) => `padding-right:${space(...vs)}`,
-  pb: (...vs) => `padding-bottom:${space(...vs)}`,
-  pl: (...vs) => `padding-left:${space(...vs)}`,
-  m: (...vs) => `margin:${space(...vs)}`,
-  mx: (...vs) => `margin-inline:${space(...vs)}`,
-  my: (...vs) => `margin-block:${space(...vs)}`,
-  mt: (...vs) => `margin-top:${space(...vs)}`,
-  mr: (...vs) => `margin-right:${space(...vs)}`,
-  mb: (...vs) => `margin-bottom:${space(...vs)}`,
-  ml: (...vs) => `margin-left:${space(...vs)}`,
-  gap: (v) => `gap:${v}`,
+  p: (vs) => `padding:${space(vs)}`,
+  px: (vs) => `padding-inline:${space(vs)}`,
+  py: (vs) => `padding-block:${space(vs)}`,
+  pt: (vs) => `padding-top:${space(vs)}`,
+  pr: (vs) => `padding-right:${space(vs)}`,
+  pb: (vs) => `padding-bottom:${space(vs)}`,
+  pl: (vs) => `padding-left:${space(vs)}`,
+  m: (vs) => `margin:${space(vs)}`,
+  mx: (vs) => `margin-inline:${space(vs)}`,
+  my: (vs) => `margin-block:${space(vs)}`,
+  mt: (vs) => `margin-top:${space(vs)}`,
+  mr: (vs) => `margin-right:${space(vs)}`,
+  mb: (vs) => `margin-bottom:${space(vs)}`,
+  ml: (vs) => `margin-left:${space(vs)}`,
+  gap: ([v]) => `gap:${v}`,
 
   // 尺寸
-  w: (v) => `width:${v}`,
-  h: (v) => `height:${v}`,
+  w: ([v]) => `width:${v}`,
+  h: ([v]) => `height:${v}`,
   max: {
-    w: (v) => `max-width:${v}`,
-    h: (v) => `max-height:${v}`,
+    w: ([v]) => `max-width:${v}`,
+    h: ([v]) => `max-height:${v}`,
   },
   min: {
-    w: (v) => `min-width:${v}`,
-    h: (v) => `min-height:${v}`,
+    w: ([v]) => `min-width:${v}`,
+    h: ([v]) => `min-height:${v}`,
   },
 
   // 颜色与文本
-  bg: (v) => `background:${v}`,
+  bg: ([v]) => `background:${v}`,
   text: {
-    "": (v) => `color:${v}`,
+    "": ([v]) => `color:${v}`,
     center: () => "text-align:center",
     left: () => "text-align:left",
     right: () => "text-align:right",
@@ -111,39 +112,39 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
 
   // 边框（简写与方向子项统一支持多段值）
   border: {
-    "": (...vs) => `border:${space(...vs)}`,
-    t: (...vs) => `border-top:${space(...vs)}`,
-    b: (...vs) => `border-bottom:${space(...vs)}`,
-    r: (...vs) => `border-right:${space(...vs)}`,
-    l: (...vs) => `border-left:${space(...vs)}`,
-    x: (...vs) => `border-inline:${space(...vs)}`,
-    y: (...vs) => `border-block:${space(...vs)}`,
-    color: (...vs) => `border-color:${space(...vs)}`,
+    "": (vs) => `border:${space(vs)}`,
+    t: (vs) => `border-top:${space(vs)}`,
+    b: (vs) => `border-bottom:${space(vs)}`,
+    r: (vs) => `border-right:${space(vs)}`,
+    l: (vs) => `border-left:${space(vs)}`,
+    x: (vs) => `border-inline:${space(vs)}`,
+    y: (vs) => `border-block:${space(vs)}`,
+    color: (vs) => `border-color:${space(vs)}`,
   },
-  outline: (v) => `outline:${v}`,
-  radius: (v) => `border-radius:${v}`,
+  outline: ([v]) => `outline:${v}`,
+  radius: ([v]) => `border-radius:${v}`,
 
   // 位置与层级
   relative: () => "position:relative",
   absolute: () => "position:absolute",
   fixed: () => "position:fixed",
   sticky: () => "position:sticky",
-  z: (v) => `z-index:${v}`,
-  top: (v) => `top:${v}`,
-  right: (v) => `right:${v}`,
-  bottom: (v) => `bottom:${v}`,
-  left: (v) => `left:${v}`,
+  z: ([v]) => `z-index:${v}`,
+  top: ([v]) => `top:${v}`,
+  right: ([v]) => `right:${v}`,
+  bottom: ([v]) => `bottom:${v}`,
+  left: ([v]) => `left:${v}`,
   inset: {
-    x: (v) => `inset-inline:${v}`,
-    y: (v) => `inset-block:${v}`,
+    x: ([v]) => `inset-inline:${v}`,
+    y: ([v]) => `inset-block:${v}`,
   },
 
   // 盒模型与效果
   box: {
     border: () => "box-sizing:border-box",
   },
-  shadow: (v) => `box-shadow:${v}`,
-  opacity: (v) => `opacity:${v}`,
+  shadow: ([v]) => `box-shadow:${v}`,
+  opacity: ([v]) => `opacity:${v}`,
   overflow: {
     hidden: () => "overflow:hidden",
     scroll: () => "overflow:scroll",
@@ -151,9 +152,9 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
     x: () => "overflow-x:auto",
     y: () => "overflow-y:auto",
   },
-  transition: (v) => `transition:${v}`,
-  transform: (v) => `transform:${v}`,
-  cursor: (v) => `cursor:${v}`,
+  transition: ([v]) => `transition:${v}`,
+  transform: ([v]) => `transform:${v}`,
+  cursor: ([v]) => `cursor:${v}`,
 
   // 文本装饰
   bold: () => "font-weight:700",
@@ -162,7 +163,7 @@ const createBaseMatchers = (): Record<string, MatcherNode> => ({
   lowercase: () => "text-transform:lowercase",
   capitalize: () => "text-transform:capitalize",
   mono: () => "font-family:monospace",
-  size: (v) => `font-size:${v}`,
+  size: ([v]) => `font-size:${v}`,
   no: {
     underline: () => "text-decoration:none",
   },
