@@ -10,6 +10,9 @@ import { createRox, createConfig, type MatcherNode } from "roxcss";
  */
 const base = createConfig();
 
+/** 页面 CSS 变量体系：段数组拼变量名并包成 var() 引用，如 ["accent","bg"] → var(--accent-bg) */
+const cssVar = (vs: string[]) => `var(--${vs.join("-")})`;
+
 export const rox = createRox(
   createConfig({
     modifiers: {
@@ -23,15 +26,15 @@ export const rox = createRox(
         ...(base.matchers.flex as Record<string, MatcherNode>),
         half: () => "flex:1 1 calc(50% - 8px)",
       },
-      // 页面 CSS 变量体系：剩余段拼为变量名，如 color-accent-bg → var(--accent-bg)
-      color: (vs) => `color:var(--${vs.join("-")})`,
-      bg: (vs) => `background:var(--${vs.join("-")})`,
+      // 页面 CSS 变量体系：剩余段拼为变量名，如 color-accent-bg → color:var(--accent-bg)
+      color: (vs) => `color:${cssVar(vs)}`,
+      bg: (vs) => `background:${cssVar(vs)}`,
       border: {
         t: () => "border-top:1px solid var(--border)",
         b: () => "border-bottom:1px solid var(--border)",
         r: ([v]) => (v == null ? "border-right:1px solid var(--border)" : `border-right:${v}`),
         x: () => "border-inline:1px solid var(--border)",
-        color: (vs) => `border-color:var(--${vs.join("-")})`,
+        color: (vs) => `border-color:${cssVar(vs)}`,
       },
       outline: () => "outline:2px solid var(--accent);outline-offset:2px",
       shadow: () => "box-shadow:var(--shadow)",
