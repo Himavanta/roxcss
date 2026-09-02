@@ -6,7 +6,7 @@ export default defineConfig({
   },
   pack: [
     {
-      entry: ["src/index.ts", "src/presets/*.ts"],
+      entry: ["src/index.ts"],
       platform: "neutral",
       dts: true,
       exports: true,

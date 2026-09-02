@@ -19,8 +19,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./index.min": "./dist/index.min.js",
-    "./presets/minimal": "./dist/presets/minimal.js",
-    "./presets/unocss": "./dist/presets/unocss.js",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -35,9 +33,9 @@
     "prepare": "vp config"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
-    "bumpp": "^11.1.0",
-    "typescript": "^7.0.2",
+    "@types/node": "^26.4.0",
+    "bumpp": "^12.2.2",
+    "typescript": "^6.0.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },

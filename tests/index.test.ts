@@ -1,5 +1,5 @@
 import { expect, test } from "vite-plus/test";
-import { createRox, minimal, rox } from "../src/index.ts";
+import { createRox, createConfig, rox } from "../src/index.ts";
 
 const custom = createRox({
   modifiers: {
@@ -158,8 +158,28 @@ test("默认匹配器：flex 家族", () => {
   expect(rox.getCSS()).toContain(`[class~="flex-col"] { display:flex;flex-direction:column }`);
 });
 
-test("minimal 预设可被 createRox 复用", () => {
-  const a = createRox(minimal);
+test("默认配置可被 createRox 复用", () => {
+  const a = createRox(createConfig());
   expect(a`hidden`).toBe("hidden");
   expect(a.getCSS()).toContain(`[class~="hidden"] { display:none }`);
+});
+
+test("createConfig 接受 overrides 浅合并", () => {
+  const a = createRox(
+    createConfig({
+      matchers: { custom: () => "display:grid" },
+    }),
+  );
+  // 默认 matcher 保留
+  expect(a`hidden`).toBe("hidden");
+  // 自定义 matcher 生效
+  expect(a`custom`).toBe("custom");
+  expect(a.getCSS()).toContain(`[class~="custom"] { display:grid }`);
+});
+
+test("createConfig 每次返回独立对象", () => {
+  const a = createConfig();
+  const b = createConfig();
+  expect(a).not.toBe(b);
+  expect(a.matchers).not.toBe(b.matchers);
 });
