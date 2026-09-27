@@ -38,6 +38,22 @@ const getDocument = (): DocumentLike | undefined =>
 
 let bucket: Bucket | null = null;
 
+/**
+ * 已写入桶的规则文本。
+ *
+ * 为什么需要：`bucket` 是模块级状态，而 `core.ts` 的 `injected` 去重表是
+ * 实例级的——两者生命周期不一致。实例重建（HMR 重求值、反复 `createRox`）
+ * 或多个实例写同一个桶时，同一个 token 会被重新解析并生成相同规则，
+ * 在桶中重复累积。这里按规则文本去重。
+ *
+ * 为什么按「规则文本」而非「token」：若 matcher 改动导致规则文本变化，
+ * 新规则仍会写入（HMR 改样式依然生效）；只有完全相同的规则才跳过。
+ *
+ * 为什么放进 `dom.ts`：它是所有实例的共同写入口，是唯一能跨实例去重的地方；
+ * `core.ts` 的实例之间互相不可见。
+ */
+const emitted = new Set<string>();
+
 /** 在 head 挂一个新的 <style> 作为活动桶 */
 function openBucket(doc: DocumentLike, head: HeadLike): Bucket {
   const el = doc.createElement("style");
@@ -57,6 +73,7 @@ function rewrite(b: Bucket) {
  * 避免每次 flush 一个容器导致 DevTools 面板堆积（方案沿革见 docs/样式表管理策略.md）。
  * 一次 textContent 赋值 = 一次解析 + 一次样式失效，避免逐条 insertRule
  * 在"插入与强制布局交替"场景下退化为 O(N²)（P0，见 docs/性能分析.md）。
+ * 已写入过的规则文本会被跳过（见 `emitted`），避免跨实例重复注入。
  * 无 DOM（SSR/测试）时跳过，规则由调用方内存记录。
  */
 export function flushStyles(rules: string[]): void {
@@ -66,21 +83,24 @@ export function flushStyles(rules: string[]): void {
   const head = doc.head;
   if (!head) return;
 
-  // 首次调用或活动桶已满：冻结当前桶，开新桶
-  if (!bucket || bucket.rules.length === MAX_BUCKET_RULES) {
-    bucket = openBucket(doc, head);
-  }
+  // 只保留首次出现的规则；已写入的跳过（无 DOM 时不记录，避免误标记）
+  const fresh = rules.filter((rule) => !emitted.has(rule));
+  if (fresh.length === 0) return;
+  for (const rule of fresh) emitted.add(rule);
 
-  // 主路径（绝大多数调用）：本批全部放得下——追加后整体重写
-  const room = MAX_BUCKET_RULES - bucket.rules.length;
-  if (rules.length <= room) {
-    bucket.rules.push(...rules);
+  let pending = fresh;
+  while (pending.length > 0) {
+    // 首次调用或活动桶已满：冻结当前桶，开新桶
+    if (!bucket || bucket.rules.length === MAX_BUCKET_RULES) {
+      bucket = openBucket(doc, head);
+    }
+
+    // 主路径：本批全部放得下——追加后整体重写；跨桶时填满当前桶，余下交给新桶
+    const room = MAX_BUCKET_RULES - bucket.rules.length;
+    const take = pending.length <= room ? pending : pending.slice(0, room);
+    pending = pending.length <= room ? [] : pending.slice(room);
+
+    bucket.rules.push(...take);
     rewrite(bucket);
-    return;
   }
-
-  // 罕见路径：单批跨桶——填满当前桶，剩余部分交给新桶继续
-  bucket.rules.push(...rules.slice(0, room));
-  rewrite(bucket);
-  flushStyles(rules.slice(room));
 }
