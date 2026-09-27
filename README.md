@@ -209,9 +209,9 @@ Each token is resolved exactly once per instance. Injected and failed tokens are
 
 ### `createRox(options)`
 
-`createRox` creates a fully independent instance with its own matcher tree, injection caches (`injected` / `failed`), and rule memory. Multiple instances can coexist without sharing any state. Pair it with `createConfig` for a preset-based instance, or pass a hand-written tree for a preset-free one:
+`createRox` creates a fully independent instance with its own matcher tree, injection caches (`injected` / `failed`), and rule memory. Multiple instances can coexist without sharing matcher state. Pair it with `createConfig` for a preset-based instance, or pass a hand-written tree for a preset-free one:
 
-`createRox` 创建完全独立的实例——各自的 matcher 树、注入缓存（`injected` / `failed`）与规则内存。多个实例可并存，互不共享状态。配合 `createConfig` 得到基于预设的实例；传入手写 matcher 树则脱离预设：
+`createRox` 创建完全独立的实例——各自的 matcher 树、注入缓存（`injected` / `failed`）与规则内存。多个实例的 matcher 状态互不共享，可并存。配合 `createConfig` 得到基于预设的实例；传入手写 matcher 树则脱离预设：
 
 - **`matchers`** `Record<string, MatcherNode>`
   - the matcher tree. Keys are segment roots, values are functions or nested objects (see [How It Works / 工作方式](#how-it-works--工作方式)).
@@ -515,10 +515,12 @@ import { rox } from "./rox"; // your configured instance / 你配置好的实例
 
 - **Batch flush per call.** All new rules from one call are appended to the active `<style>` bucket in a single `textContent` write — one parse, one style invalidation. No per-rule `insertRule` (measured O(N²) under interleaved forced layout; see [性能分析.md](./docs/性能分析.md)).
 - **Rolling style buckets.** The active `<style data-roxcss>` element is reused until it holds 1000 rules, then frozen and a new one is created. Bucket count stays at `ceil(rules / 1000)` — no DevTools panel clutter.
+- **Cross-instance deduplication.** Rules already written are skipped by rule text, so rebuilding instances (HMR, repeated `createRox`) does not accumulate duplicate rules — while changed rule text (e.g. an edited matcher) still gets written.
 - **SSR safe.** With no DOM, rules are kept in memory and readable via `getCSS()`.
 
 - **每次调用批量写入**：一次调用产生的新规则，以一次 `textContent` 赋值追加到活动 `<style>` 桶——一次解析、一次样式失效。不使用逐条 `insertRule`（实测在交替强制布局场景退化为 O(N²)，见 [性能分析.md](./docs/性能分析.md)）。
 - **滚动 style 桶**：活动 `<style data-roxcss>` 元素复用到 1000 条规则后冻结，新建下一个。桶数保持在 ceil(规则数 / 1000)——DevTools 面板不堆积。
+- **跨实例去重**：已写入的规则按规则文本跳过，因此重建实例（HMR、反复 `createRox`）不会重复累积规则；规则文本变化时（如改了 matcher）仍会正常写入。
 - **SSR 安全**：无 DOM 时规则保存在内存，经 `getCSS()` 读取。
 
 ## Docs / 设计文档
